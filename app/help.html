@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" href="style/slds_2_10/styles/salesforce-lightning-design-system.min.css" type="text/css">
+  <link rel="stylesheet" href="style/styles.css" type="text/css">
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self';
+                     script-src 'self' 'unsafe-inline';
+                     connect-src *
+                     ">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Help</title>
+</head>
+
+<body>
+  <div class="slds-form slds-card slds-m-around_x-small slds-p-around_small">
+      <div class="slds-text-heading_medium slds-border_bottom">Overview</div>
+      <div id="overview">
+      </div>
+  </div>
+  <div class="slds-form slds-card slds-m-around_x-small slds-p-around_small">
+        <div class="slds-text-heading_medium slds-border_bottom">Command Help</div>
+        <div id="help">
+            <em>Retrieving help ...</em>
+        </div>
+    </div>
+  </body>
+<script>
+  require('./help.js');
+</script>
+
+</html>

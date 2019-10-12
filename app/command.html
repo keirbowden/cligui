@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" href="style/slds_2_10/styles/salesforce-lightning-design-system.min.css" type="text/css">
+  <link rel="stylesheet" href="style/styles.css" type="text/css">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self';
+                     script-src 'self' 'unsafe-inline';
+                     connect-src *
+                     ">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title></title>
+</head>
+
+<body>
+    <div class="slds-page-header">
+        <div class="slds-page-header__row">
+            <div class="slds-page-header__col-title">
+                <div class="slds-media">
+                    <div class="slds-media__figure">
+                        <span class="slds-icon_container slds-icon-standard-opportunity">
+                            <svg class="slds-icon slds-page-header__icon" aria-hidden="true">
+                                <use id="icon" xlink:href="style/slds_2_10/icons/utility-sprite/svg/symbols.svg#"></use>
+                            </svg>
+                            <span class="slds-assistive-text" id="header-assist"></span>
+                        </span>
+                    </div>
+                    <div class="slds-media__body">
+                        <div class="slds-page-header__name">
+                            <div class="slds-page-header__name-title">
+                                <h1>
+                                    <span class="slds-page-header__title slds-truncate" id="title"></span>
+                                </h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slds-page-header__col-actions">
+                <div class="slds-page-header__controls">
+                    <div class="slds-page-header__control">
+                        <button id="dir-button" class="slds-button slds-button_neutral">Change Directory</button>
+                        <button id="help-button" class="slds-button slds-button_neutral">Help</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="slds-form slds-card slds-m-around_x-small slds-p-around_small">
+        <div class="slds-text-heading_medium slds-border_bottom slds-m-bottom_small">Instructions</div>
+        <div id="instructions">
+        </div>
+    </div>
+        
+    <div class="slds-form slds-card slds-m-around_x-small slds-p-around_small">
+        <div class="slds-text-heading_medium slds-border_bottom slds-m-bottom_small">Configure Command</div>
+
+        <div id="params">
+        </div>
+        <div class="slds-form-element slds-form-element_horizontal">
+            <button class="slds-button slds-button_outline-brand" id="execute-button"></button>
+        </div>
+        <div>
+            This will execute the following command:
+            <pre class="slds-box command" id="command"></pre>
+        </div>
+    </div>
+        
+    <div class="slds-is-fixed footer" id="footer">
+    </div>
+    <div id="logging"></div>
+</body>
+<script>require('./command.js');</script>
+</html>

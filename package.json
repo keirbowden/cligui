@@ -1,0 +1,20 @@
+{
+  "name": "sfdxgui",
+  "version": "1.0.0",
+  "description": "Electron front end on SFDX cli",
+  "main": "app/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-packager .",
+    "forcebuild": "electron-packager --overwrite .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^6.0.9",
+    "electron-packager": "^14.0.6",
+    "fix-path": "^2.1.0",
+    "fs-extra": "^8.1.0"
+  }
+}

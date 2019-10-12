@@ -1,0 +1,22 @@
+.footer {
+    position:fixed;
+    bottom: 0;
+    min-height: 2em;
+    max-height: 2em;
+    background-color: rgb(92, 91, 91);
+    color: white;
+    width:100%;
+    padding: 0.25em;
+}
+
+.output {
+    min-height:70%;
+}
+
+.selectorg {
+    width: 100%;
+}
+
+.command {
+    background-color : #ededeb;
+}

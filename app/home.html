@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" href="style/slds_2_10/styles/salesforce-lightning-design-system.min.css" type="text/css">
+  <link rel="stylesheet" href="style/styles.css" type="text/css">
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self';
+                     script-src 'self' 'unsafe-inline';
+                     connect-src *
+                     ">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SFDX GUI</title>
+</head>
+
+<body>
+  <div class="slds-page-header">
+    <div class="slds-page-header__row">
+        <div class="slds-page-header__col-title">
+            <div class="slds-media">
+                <div class="slds-media__figure">
+                    <span class="slds-icon_container slds-icon-custom-custom16">
+                        <svg class="slds-icon slds-page-header__icon" aria-hidden="true">
+                            <use xlink:href="style/slds_2_10/icons/custom-sprite/svg/symbols.svg#custom16"></use>
+                        </svg>
+                        <span class="slds-assistive-text" id="header-assist"></span>
+                    </span>
+                </div>
+                <div class="slds-media__body">
+                    <div class="slds-page-header__name">
+                        <div class="slds-page-header__name-title">
+                            <h1>
+                                <span class="slds-page-header__title slds-truncate" id="title">Salesforce CLI GUI</span>
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slds-page-header__col-actions">
+            <div class="slds-page-header__controls">
+                <div class="slds-page-header__control">
+                  <button id="dir-button" class="slds-button slds-button_neutral">Change Directory</button>
+                  <button id="help-button" class="slds-button slds-button_neutral">Help</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="slds-tabs_default">
+    <ul class="slds-tabs_default__nav" role="tablist" id="tabs">
+    </ul>
+    <div id="tab-contents">        
+    </div>
+  </div>
+  <div class="slds-is-fixed footer" id="footer">
+  </div>
+</body>
+<script>
+  require('./home');
+</script>
+
+</html>
