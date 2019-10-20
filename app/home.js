@@ -9,21 +9,6 @@ const currentWindow = remote.getCurrentWindow();
 
 ui.setupFooter('footer', mainProcess.getUsername(), mainProcess.getDevhubusername());
 
-const helpButton = document.querySelector('#help-button');
-helpButton.addEventListener('click', () => {
-    mainProcess.createWindow('help.html', 500, 750, 50, 50, {name: 'CLI Gui', command: 'CLI Gui'});
-});
-
-const dirButton = document.querySelector('#dir-button');
-dirButton.addEventListener('click', () => {
-    const dir=mainProcess.getDirectoryFromUser(currentWindow, process.cwd());
-    if (dir) {
-        process.chdir(dir);
-        mainProcess.changeDirectory(dir);
-        ui.setupFooter('footer', mainProcess.getUsername(), mainProcess.getDevhubusername());
-    }
-});
-
 let tabsHtml='';
 let contentHtml='';
 let count=0;
@@ -92,6 +77,20 @@ const removeActiveTab=() => {
         group.content.classList.remove('slds-show');
     }
 }
+const helpButton = document.querySelector('#help-button');
+helpButton.addEventListener('click', () => {
+    mainProcess.createWindow('help.html', 500, 750, 50, 50, {name: 'CLI Gui', command: 'CLI Gui'});
+});
+
+const dirButton = document.querySelector('#dir-button');
+dirButton.addEventListener('click', () => {
+    const dir=mainProcess.getDirectoryFromUser(currentWindow, process.cwd());
+    if (dir) {
+        process.chdir(dir);
+        mainProcess.changeDirectory(dir);
+        ui.setupFooter('footer', mainProcess.getUsername(), mainProcess.getDevhubusername());
+    }
+});
 
 ipcRenderer.on('config', (event) => {
     console.log('Received config event');

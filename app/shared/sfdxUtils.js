@@ -5,7 +5,7 @@ const fse=require('fs-extra');
 const ui = require('./ui.js');
 const path=require('path');
 
-const runSFDXCommand = exports.runSfdxCommand = (command, params) => {
+const runSfdxCommand = exports.runSfdxCommand = (command, params) => {
     let paramArr=[];
     if (''!=params) {
         if (params.charAt(0)==' ') {
@@ -18,10 +18,10 @@ const runSFDXCommand = exports.runSfdxCommand = (command, params) => {
     paramArr.unshift(command);
     paramArr.push('--json');
     
-    return runSFDX(paramArr);
+    return runSfdx(paramArr);
 
 }
-const runSFDX = exports.runSfdx = (params) => {
+const runSfdx = exports.runSfdx = (params) => {
     let result;
     try {
         console.log('Executing command sfdx ' + params);
@@ -62,7 +62,7 @@ const executeSfdxWithLogging = exports.executeSfdxWithLogging = (command, params
     logging.log(command.startMessage);
     setTimeout(() => {
         let success=true;
-        const result=runSFDXCommand(command.subcommand, params);
+        const result=runSfdxCommand(command.subcommand, params);
         if ( (result.status===0) && 
              ((!result.result.failures) || (0==result.result.failures.length)) ) {
             if (command.resultprocessor) {
@@ -101,35 +101,7 @@ const executeSfdxWithLogging = exports.executeSfdxWithLogging = (command, params
 
         if (success) {
             if ( (command.polling) && (command.polling.supported) ) {
-                let username=orgUtils.getUsernameFromParams(command.params);
-                switch (command.polling.type) {
-                    case 'test':
-                        let jobId=result.result.testRunId;
-                        let interval=setInterval(() => {
-                            let pollResult=runSFDXCommand('force:apex:test:report', '-i ' + jobId + ' -u ' + username + ' -w 2');
-                            let stop=false;
-                            let success=true;
-                            if ( (pollResult.status===1) && (!pollResult.message.includes('timeout')) ) {
-                                logging.log('Poll failed - ' + pollResult.message);
-                                stop=true;
-                                success=false;
-                            }
-                            else if ( (pollResult.status==0) || (pollResult.status==100) ) {
-                                logging.log('Test run complete');
-                                outputTestResults(pollResult.result);
-                                stop=true;
-                            }
-                            if (stop) {
-                                clearInterval(interval);
-                                logging.log(command.completeMessage);
-                                if (completeCB) {
-                                    completeCB(success, result);
-                                }
-                            }
-                        }, 30000);    
-                        break;
-                    ;;
-                }
+                pollCommandStatus(command, result, completeCB);
             }
             else {
                 logging.log(command.completeMessage);
@@ -142,6 +114,38 @@ const executeSfdxWithLogging = exports.executeSfdxWithLogging = (command, params
     }, 100);
 }
 
+const pollCommandStatus = (command, result, completeCB) => {
+    let username=orgUtils.getUsernameFromParams(command.params);
+    switch (command.polling.type) {
+        case 'test':
+            let jobId=result.result.testRunId;
+            let interval=setInterval(() => {
+                let pollResult=runSfdxCommand('force:apex:test:report', '-i ' + jobId + ' -u ' + username + ' -w 2');
+                let stop=false;
+                let success=true;
+                if ( (pollResult.status===1) && (!pollResult.message.includes('timeout')) ) {
+                    logging.log('Poll failed - ' + pollResult.message);
+                    stop=true;
+                    success=false;
+                }
+                else if ( (pollResult.status==0) || (pollResult.status==100) ) {
+                    logging.log('Test run complete');
+                    outputTestResults(pollResult.result);
+                    stop=true;
+                }
+                if (stop) {
+                    clearInterval(interval);
+                    logging.log(command.completeMessage);
+                    if (completeCB) {
+                        completeCB(success, result);
+                    }
+                }
+            }, 30000);    
+            break;
+        ;;
+    }
+
+}
 const outputLogFileResult = (result) => {
     logging.log('------------- Log File Start -------------');
     logging.log(result.log);
@@ -177,7 +181,7 @@ const outputTestResults = (result) => {
         for (let test of result.tests)
         {
             if (test.Outcome==='Pass') {
-                logging.log('  ' + idx + ') ' + test.ApexClass.Name + '.' + test.MethodName);
+                logging.log('  ' + (idx++) + ') ' + test.ApexClass.Name + '.' + test.MethodName);
             }
         }
     }
@@ -188,7 +192,7 @@ const outputTestResults = (result) => {
         for (let test of result.tests)
         {
             if (test.Outcome!=='Pass') {
-                logging.log('  ' + idx + ') ' + test.ApexClass.Name + '.' + test.MethodName + ' - ' + test.Message);
+                logging.log('  ' + (idx++) + ') ' + test.ApexClass.Name + '.' + test.MethodName + ' - ' + test.Message);
             }
         }
     }
@@ -209,7 +213,7 @@ const loadOrgs = exports.loadOrgs = (mainProcess, ele, force) => {
         console.log('Retrieving orgs');
         const params=['force:org:list', '--json'];
         ui.executeWithSpinner(ele, () => {
-            const result=runSFDX(params);
+            const result=runSfdx(params);
             if (result.status===0)  {
                 fse.writeFileSync(filename, JSON.stringify(result));
                 orgs=result.result;
@@ -227,7 +231,7 @@ const getConfig = exports.getConfig = () => {
     console.log('Getting config settings');
     const params=['force:config:list', '--json'];
 
-    const result=runSFDX(params);
+    const result=runSfdx(params);
     console.log('Config = ' + JSON.stringify(result));
     if ( (result.status===0) && (result.result.length>0) ) {
         for (let cfgItem of result.result) {

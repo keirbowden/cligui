@@ -1,4 +1,4 @@
-let output;
+let outputElement;
 let outputModal;
 let scrollOutput;
 let closeButton;
@@ -28,11 +28,12 @@ const addModal = exports.addModal = (containerId) => {
                       '</div>\n';
   
     const container = document.querySelector('#' + containerId);
-    console.log('Container for #' + containerId + ' = ' + container);
     container.innerHTML=modalMarkup;
-    output = document.querySelector('#output');
+
+    outputElement = document.querySelector('#output');
     scrollOutput = document.querySelector('#modal-content');
     outputModal = document.querySelector('#output-modal');
+
     closeButton = document.querySelector('#modal-close');
     closeButton.addEventListener('click', () => {
         toggleModal();
@@ -40,7 +41,7 @@ const addModal = exports.addModal = (containerId) => {
 
     clearButton = document.querySelector('#modal-clear');
     clearButton.addEventListener('click', () => {
-        output.innerHTML='';
+        outputElement.innerHTML='';
         scrollOutput.scrollTop = scrollOutput.scrollHeight;
     });
 }
@@ -50,9 +51,8 @@ const toggleModal = exports.toggleModal = () => {
     outputModal.classList.toggle('slds-hide');
 }
 
-
 const log = exports.log = (message) => {
     let timestamp=new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
-    output.innerHTML+=timestamp +' : ' + message + '\n';
+    outputElement.innerHTML+=timestamp +' : ' + message + '\n';
     scrollOutput.scrollTop = scrollOutput.scrollHeight;
 }

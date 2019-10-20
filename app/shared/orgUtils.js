@@ -1,7 +1,7 @@
 const logging = require('./logging.js');
 const sfdxUtils = require('./sfdxUtils.js');
 
-const isValidUsername = exports.isValidUsername = (orgs, val) => {
+const extractValidUsername = exports.extractValidUsername = (orgs, val) => {
     let found=false;
     let username=getUsername(val);
     for (let org of orgs.nonScratchOrgs) {

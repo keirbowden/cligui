@@ -75,7 +75,7 @@ const executeWithSpinner = exports.executeWithSpinner = (ele, fn) => {
     }, 100);
 }
 
-const setupHeader = exports.setupHeader = (command) => {
+const setupHeader = exports.setupHeader = (command, mainProcess) => {
     const iconEle=document.querySelector('#icon');
     iconEle.setAttributeNS('http://www.w3.org/1999/xlink', 'href', iconEle.getAttributeNS('http://www.w3.org/1999/xlink', 'href') + command.icon);
     document.title=command.label;

@@ -33,7 +33,6 @@ const getConfig = exports.getConfig = () => {
     devhubusername=config.devhubusername;
 }
 
-process.chdir(app.getPath('home'));
 getConfig();
 
 const getUsername = exports.getUsername = () => {

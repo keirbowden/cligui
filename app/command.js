@@ -12,7 +12,6 @@ const fixPath = require('fix-path');
 fixPath();
 
 ui.addSpinner('spinner');    
-
 logging.addModal('logging');
 
 let command;
@@ -58,7 +57,7 @@ ipcRenderer.on('params', (event, params) => {
     setDirectory(dir);
     
     command=params.command;
-    ui.setupHeader(command);
+    ui.setupHeader(command, mainProcess);
 
     orgs=mainProcess.getOrgs();
     paramUtils.addParams('params', command, orgs);
@@ -84,7 +83,7 @@ const getParams = () => {
             case 'org':
                 let username;
                 val=param.input.value;
-                if ( (''!==val) && (null!=(username=orgUtils.isValidUsername(orgs, val))) ) {
+                if ( (''!==val) && (null!=(username=orgUtils.extractValidUsername(orgs, val))) ) {
                     paramStr+=' ' + param.flag + separator + username;
                 }
                 else if ( (''===val) && (param.allowEmpty) ) {
@@ -183,12 +182,6 @@ const completed = (success, result) => {
             logging.log('Refreshing config');
             mainProcess.refreshConfig();
         }
-        
-        // clear form
-        // aliasInput.value='';
-        // duration.value='';
-        // defaultUserCheckbox.checked=false;
-        // openOrgCheckbox.checked=false;        
     }
 }
 
