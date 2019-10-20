@@ -30,6 +30,7 @@ const groups = exports.groups =
                             name : 'devhub',
                             label: 'Dev Hub',
                             type: 'org',
+                            default: true,
                             variant: 'hub',
                             flag: '-v'
                         },
@@ -112,7 +113,7 @@ const groups = exports.groups =
                     subcommand: 'force:org:open',
                     instructions: 'TODO',
                     executelabel: 'Open',
-                    refreshOrgs: true,
+                    refreshOrgs: false,
                     json: {
                         supported: true,
                         polling: false,
@@ -237,11 +238,209 @@ const groups = exports.groups =
                             name : 'verbose',
                             label: 'Verbose ?',
                             type: 'checkbox',
-                            default: 'force',
+                            default: 'false',
                             flag: '--verbose'
                         }
                     ]        
                 }
             ]
+        },
+        {
+            name : 'config',
+            label: 'Config',
+            commands : [
+                {
+                    name: 'defaultuser',
+                    label: 'Default Username',
+                    icon: 'user',
+                    startMessage: 'Setting default username',
+                    completeMessage: 'Default username set',
+                    command: 'sfdx',
+                    subcommand: 'force:config:set',
+                    instructions: 'TODO',
+                    executelabel: 'Set',
+                    refreshConfig: true,
+                    refreshOrgs: false,
+                    json: {
+                        supported: true,
+                        polling: false,
+                        status: 'status',
+                        result: 'result'
+                    },
+                    overview : 'TODO',
+                    params : [
+                        {
+                            name : 'username',
+                            label: 'Username',
+                            type: 'org',
+                            default: false,
+                            allowEmpty: true,
+                            separator: '=',
+                            variant: 'all',
+                            flag: 'defaultusername'
+                        },
+                        {
+                            name : 'global',
+                            label: 'Global ?',
+                            type: 'checkbox',
+                            default: 'false',
+                            flag: '-g'
+                        }
+                    ]        
+                },
+                {
+                    name: 'defaultdevhub',
+                    label: 'Default Dev Hub',
+                    icon: 'strategy',
+                    startMessage: 'Setting default dev hub',
+                    completeMessage: 'Defaul dev hub set',
+                    command: 'sfdx',
+                    subcommand: 'force:config:set',
+                    instructions: 'TODO',
+                    executelabel: 'Set',
+                    refreshConfig: true,
+                    refreshOrgs: false,
+                    json: {
+                        supported: true,
+                        polling: false,
+                        status: 'status',
+                        result: 'result'
+                    },
+                    overview : 'TODO',
+                    params : [
+                        {
+                            name : 'username',
+                            label: 'Username',
+                            type: 'org',
+                            default: false,
+                            allowEmpty: true,
+                            separator: '=',
+                            variant: 'hub',
+                            flag: 'defaultdevhubusername'
+                        },
+                        {
+                            name : 'global',
+                            label: 'Global ?',
+                            type: 'checkbox',
+                            default: 'false',
+                            flag: '-g'
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            name : 'test',
+            label: 'Test',
+            commands : [
+                {
+                    name: 'runclass',
+                    label: 'Run Test Class',
+                    icon: 'multi_select_checkbox',
+                    startMessage: 'Running test class',
+                    completeMessage: 'Test class run',
+                    command: 'sfdx',
+                    subcommand: 'force:apex:test:run',
+                    instructions: 'TODO',
+                    executelabel: 'Run',
+                    refreshConfig: false,
+                    refreshOrgs: false,
+                    json: true,
+                    polling: {
+                        supported: true,
+                        type: 'test',
+                    },
+                    overview : 'TODO',
+                    params : [
+                        {
+                            name : 'username',
+                            label: 'Username',
+                            type: 'org',
+                            default: false,
+                            allowEmpty: true,
+                            variant: 'all',
+                            flag: '-u'
+                        },
+                        {
+                            name : 'class',
+                            label: 'Test Class',
+                            type: 'text',
+                            default: 'bg_PRD_PlatformNameRetrievalService_Test',
+                            flag: '-t'
+                        }
+                    ]        
+                }
+            ]
+        },
+        {
+            name : 'log',
+            label: 'Logging',
+            commands : [
+                {
+                    name: 'getlog',
+                    label: 'Get Log File',
+                    icon: 'file',
+                    startMessage: 'Rerieving log file',
+                    completeMessage: 'Log file retrieved',
+                    command: 'sfdx',
+                    subcommand: 'force:apex:log:get',
+                    instructions: 'TODO',
+                    executelabel: 'Get',
+                    refreshConfig: false,
+                    refreshOrgs: false,
+                    json: true,
+                    resultprocessor: 'logfile',
+                    polling: {
+                        supported: false
+                    },
+                    overview : 'TODO',
+                    params : [
+                        {
+                            name : 'username',
+                            label: 'Username',
+                            type: 'org',
+                            default: false,
+                            variant: 'all',
+                            flag: '-u'
+                        },
+                        {
+                            name : 'logfile',
+                            label: 'Logfile',
+                            type: 'logfile',
+                            flag: '-i'
+                        }
+                    ]        
+                },
+                {
+                    name: 'listlogs',
+                    label: 'List Logs',
+                    icon: 'file',
+                    startMessage: 'Retrieving log file list',
+                    completeMessage: 'Log file list retrieved',
+                    command: 'sfdx',
+                    subcommand: 'force:apex:log:list',
+                    instructions: 'TODO',
+                    executelabel: 'List',
+                    refreshConfig: false,
+                    refreshOrgs: false,
+                    json: true,
+                    resultprocessor: 'loglist',
+                    polling: {
+                        supported: false
+                    },
+                    overview : 'TODO',
+                    params : [
+                        {
+                            name : 'username',
+                            label: 'Username',
+                            type: 'org',
+                            default: false,
+                            variant: 'all',
+                            flag: '-u'
+                        }
+                    ]        
+                }
+            ]
         }
+
     ];

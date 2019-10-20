@@ -1,4 +1,4 @@
-const { remote } = require('electron');
+const { remote, ipcRenderer } = require('electron');
 const mainProcess = remote.require('./main.js');
 const sfdxUtils = require('./shared/sfdxUtils.js');
 const ui = require('./shared/ui.js');
@@ -8,7 +8,6 @@ fixPath();
 const currentWindow = remote.getCurrentWindow();
 
 ui.setupFooter('footer', mainProcess.getUsername(), mainProcess.getDevhubusername());
-sfdxUtils.setHomeDir(mainProcess.getHomeDir());
 
 const helpButton = document.querySelector('#help-button');
 helpButton.addEventListener('click', () => {
@@ -70,7 +69,6 @@ for (let group of mainProcess.commands.groups) {
     for (let command of group.commands) {
         command.button=document.querySelector('#' + command.name + '-btn');
         command.button.addEventListener('click', () => {
-            console.log('mainProcess = ' + JSON.stringify(mainProcess));
             mainProcess.createWindow('command.html', 900, 1200, 10, 10, {command: command, dir: process.cwd()});
         });
     }
@@ -95,3 +93,7 @@ const removeActiveTab=() => {
     }
 }
 
+ipcRenderer.on('config', (event) => {
+    console.log('Received config event');
+    ui.setupFooter('footer', mainProcess.getUsername(), mainProcess.getDevhubusername());
+});

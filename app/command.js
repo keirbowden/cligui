@@ -11,7 +11,8 @@ const logging = require('./shared/logging.js');
 const fixPath = require('fix-path'); 
 fixPath();
 
-sfdxUtils.setHomeDir(mainProcess.getHomeDir());
+ui.addSpinner('spinner');    
+
 logging.addModal('logging');
 
 let command;
@@ -29,10 +30,14 @@ executeButton.addEventListener('click', () => {
 
 const setDirectory = (dir) => {
     process.chdir(dir);
+    setConfig();
+}
+
+const setConfig = () => {
     config=sfdxUtils.getConfig();
     username=config.username;
     devhubusername=config.devhubusername;
-    ui.setupFooter('footer', username, devhubusername);
+    ui.setupFooter('footer', username, devhubusername);    
 }
 
 const dirButton = document.querySelector('#dir-button');
@@ -41,6 +46,11 @@ dirButton.addEventListener('click', () => {
     if (dir) {
         setDirectory(dir);
     }
+});
+
+const outputButton = document.querySelector('#output-button');
+outputButton.addEventListener('click', () => {
+    logging.toggleModal();
 });
 
 ipcRenderer.on('params', (event, params) => {
@@ -52,7 +62,7 @@ ipcRenderer.on('params', (event, params) => {
 
     orgs=mainProcess.getOrgs();
     paramUtils.addParams('params', command, orgs);
-    paramUtils.addHandlers(command, updateCommand, username, devhubusername);
+    paramUtils.addHandlers(command, updateCommand, username, devhubusername, mainProcess, currentWindow);
 
     executeButton.innerHTML=command.executelabel;
     updateCommand();
@@ -69,23 +79,29 @@ const getParams = () => {
 
     for (let param of command.params) {
         let val;
+        let separator=(param.separator?param.separator:' ');
         switch (param.type) {
             case 'org':
                 let username;
                 val=param.input.value;
                 if ( (''!==val) && (null!=(username=orgUtils.isValidUsername(orgs, val))) ) {
-                    paramStr+=' ' + param.flag +' ' + username;
+                    paramStr+=' ' + param.flag + separator + username;
+                }
+                else if ( (''===val) && (param.allowEmpty) ) {
+                    paramStr+=' ' + param.flag + separator;
                 }
                 else {
                     disable=true;
                 }
+                command.username=username;
+                
                 break;
             ;;
 
             case 'number':
                 val=param.input.value;
                 if ( (''!==val) && (val>=param.min) && (val<=param.max) ) {
-                    paramStr+=' ' + param.flag +' ' + val;
+                    paramStr+=' ' + param.flag + separator + val;
                 }
                 else {
                     disable=true;
@@ -96,7 +112,7 @@ const getParams = () => {
             case 'text':
                 val=param.input.value;
                 if (''!==val) {
-                    paramStr+=' ' + param.flag +' ' + val;
+                    paramStr+=' ' + param.flag + separator + val;
                 }
                 break;
             ;;
@@ -104,7 +120,9 @@ const getParams = () => {
             case 'file':
                 val=param.input.value;
                 if (''!==val){
-                    paramStr+=' ' + param.flag +' ' + val;
+                    val=val.replace(' ', '\\ ');
+                    console.log('KABKAB - val = ' + val);
+                    paramStr+=' ' + param.flag + separator + val;
                 }
                 else {
                     disable=true;
@@ -128,8 +146,14 @@ const getParams = () => {
             ;;
 
             case 'select':
+            case 'logfile':
                 let selectedIndex=param.input.selectedIndex;
-                paramStr+=' ' + param.flag +' ' + param.values[selectedIndex];
+                if (-1!=selectedIndex) {
+                    paramStr+=' ' + param.flag + separator + param.values[selectedIndex];
+                }
+                else {
+                    disabled=true;
+                }
                 break;
             ;;
         }
@@ -144,16 +168,20 @@ const getParams = () => {
 }
 
 const executeCommand = () => {
-    sfdxUtils.executeSfdxWithLogging(command.startMessage, command.completeMessage, true, 
-                                     command.subcommand, getParams(), completed);
+    sfdxUtils.executeSfdxWithLogging(command, getParams(), completed);
 };
 
-const completed = (result) => {
-    if (result.status==0) {
+const completed = (success, result) => {
+    if (success) {
         orgUtils.openOrgIfConfigured(command, result.result.username);
         if (command.refreshOrgs) {
             logging.log('Refreshing org list');
             mainProcess.refreshOrgs();
+        }
+        
+        if (command.refreshConfig) {
+            logging.log('Refreshing config');
+            mainProcess.refreshConfig();
         }
         
         // clear form
@@ -167,4 +195,10 @@ const completed = (result) => {
 ipcRenderer.on('broadcast', (event, message) => {
     ui.setupFooter('footer', username, devhubusername, message);
     logging.log(message);
+});
+
+ipcRenderer.on('config', (event) => {
+    setConfig();
+    ui.setupFooter('footer', username, devhubusername, message);
+    logging.log('Refreshed config');
 });

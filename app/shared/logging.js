@@ -5,7 +5,7 @@ let closeButton;
 
 const addModal = exports.addModal = (containerId) => {
     const modalMarkup='<div class="slds-hide" id="output-modal">\n' + 
-                      '  <section role="dialog" tabindex="-1" aria-labelledby="modal-heading" aria-modal="true" aria-describedby="modal-content" class="slds-modal slds-fade-in-open">\n' +
+                      '  <section role="dialog" tabindex="-1" aria-labelledby="modal-heading" aria-modal="true" aria-describedby="modal-content" class="slds-modal slds-fade-in-open slds-modal_large">\n' +
                       '    <div class="slds-modal__container">\n' + 
                       '      <header class="slds-modal__header">\n' + 
                       '        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" id="modal-close" title="Close">\n' + 
@@ -19,6 +19,9 @@ const addModal = exports.addModal = (containerId) => {
                       '      <div class="slds-modal__content slds-p-around_medium output" id="modal-content">\n' +
                       '        <pre id="output"></pre>\n' +
                       '      </div>\n' +
+                      '      <footer class="slds-modal__footer">\n' + 
+                      '        <button class="slds-button slds-button_neutral" id="modal-clear">Clear</button>\n' +
+                      '      </footer>\n' + 
                       '    </div>\n' +
                       '  </section>\n' +
                       '  <div class="slds-backdrop slds-backdrop_open"></div>\n' +
@@ -32,12 +35,17 @@ const addModal = exports.addModal = (containerId) => {
     outputModal = document.querySelector('#output-modal');
     closeButton = document.querySelector('#modal-close');
     closeButton.addEventListener('click', () => {
-        outputModal.classList.toggle('slds-show');
-        outputModal.classList.toggle('slds-hide');    
+        toggleModal();
+    });
+
+    clearButton = document.querySelector('#modal-clear');
+    clearButton.addEventListener('click', () => {
+        output.innerHTML='';
+        scrollOutput.scrollTop = scrollOutput.scrollHeight;
     });
 }
 
-const showModal = exports.showModal = () => {
+const toggleModal = exports.toggleModal = () => {
     outputModal.classList.toggle('slds-show');
     outputModal.classList.toggle('slds-hide');
 }

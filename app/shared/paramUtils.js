@@ -1,4 +1,6 @@
 const orgUtils = require('./orgUtils.js');
+const sfdxUtils = require('./sfdxUtils.js');
+const ui = require('./ui.js');
 
 const getFormElements = (param) => {
     const formEle=document.createElement('div');
@@ -53,7 +55,57 @@ const addOrgOption = (datalist, org, scratch) => {
     datalist.appendChild(option);
 }
 
-const addNumberParam = (param) => {
+const addLogfileParam = (param) => {
+    const formEles=getFormElements(param);
+
+    const butEle=document.createElement('button');
+    butEle.classList.add('slds-top-m_small', 'slds-button', 'slds-button_outline-brand', 'slds-m-bottom_small');
+    butEle.id=param.name+'-button';
+    butEle.innerHTML='Get Log Files';
+    formEles.contEle.appendChild(butEle);
+
+    const selContEle=document.createElement('div');
+    selContEle.classList.add('slds-select_container');
+    formEles.contEle.appendChild(selContEle);
+
+    const selEle=document.createElement('select');
+    selEle.classList.add('slds-select');
+    selEle.id=param.name+'-select';
+    selContEle.appendChild(selEle);
+ 
+    return formEles.formEle;
+ }
+ 
+ const getLogFileOptions = (param, username, callback) => {
+    let spinEle=document.querySelector('#spinner');
+    ui.executeWithSpinner(spinEle, () => {
+        const result=sfdxUtils.runSfdxCommand('force:apex:log:list', '-u ' + username);
+        addLogFileOptions(result, param);
+        callback();
+    })
+}
+
+const addLogFileOptions=(result, param) => {
+    const select=document.querySelector('#' + param.name + '-select');
+    while (select.options.length > 0) {                
+        select.remove(0);
+    }      
+    param.values=[];
+    let first=true;
+    for (let idx=result.result.length-1; idx>=0; idx--) {
+        let log=result.result[idx];
+        option=document.createElement('option');
+        option.value=log.Id;
+        option.selected=first;
+        option.label=log.LogUser.Name + ' - ' + log.Operation + ' (' + log.LogLength + ') - ' + 
+                                    log.StartTime + ', ' + log.Status;
+        select.appendChild(option);    
+        param.values.push(log.Id);
+        first=false;
+    }
+}
+
+ const addNumberParam = (param) => {
     const formEles=getFormElements(param);
     const inpEle=document.createElement('input');
     inpEle.setAttribute('type', 'number');
@@ -182,6 +234,11 @@ const addParams = exports.addParams = (id, command, orgs) => {
                 paramsEle.appendChild(addSelectParam(param));                
                 break;
             ;;
+
+            case 'logfile':
+                paramsEle.appendChild(addLogfileParam(param));
+                break;
+            ;;   
         }    
     }
 
@@ -197,7 +254,7 @@ const addParams = exports.addParams = (id, command, orgs) => {
     return paramsEle;
 }
 
-const addHandlers = exports.addHandlers = (command, callback, username, devhubusername) => {
+const addHandlers = exports.addHandlers = (command, callback, username, devhubusername, mainProcess, currentWindow) => {
     // add handlers for inputs
     for (let param of command.params) {
         param.input=document.querySelector('#' + param.name + '-input');
@@ -207,6 +264,17 @@ const addHandlers = exports.addHandlers = (command, callback, username, devhubus
             });
         }
         switch (param.type) {
+            case 'logfile' :
+                param.button=document.querySelector('#' + param.name + '-button');
+                param.button.addEventListener('click', () => {
+                    getLogFileOptions(param, command.username, callback);                    
+                });
+                param.input=document.querySelector('#' + param.name + '-select');
+                param.input.addEventListener('change', () => {
+                    callback();
+                });
+                break;
+            ;;
             case 'file' :
                 param.button=document.querySelector('#' + param.name + '-button');
                 param.button.addEventListener('click', () => {
@@ -220,11 +288,13 @@ const addHandlers = exports.addHandlers = (command, callback, username, devhubus
                 break;
             ;;
             case 'org' :
-                if ( ('hub'==param.variant) && (devhubusername) ) {
-                    param.input.value=devhubusername;
-                }
-                else if (username) {
-                    param.input.value=username;
+                if (param.default) {
+                    if ( ('hub'==param.variant) && (devhubusername) ) {
+                        param.input.value=devhubusername;
+                    }
+                    else if (username) {
+                        param.input.value=username;
+                    }
                 }
                 break;
             ;;
@@ -240,6 +310,14 @@ const addHandlers = exports.addHandlers = (command, callback, username, devhubus
                 param.input.addEventListener('change', () => {
                     callback();
                 });
+                break;
+            ;;
+            case 'text':
+                if (param.default) {
+                    param.input.value=param.default;
+                }
+                break;
+            ;;
         }
     }
 }

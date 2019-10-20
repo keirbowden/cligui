@@ -1,7 +1,6 @@
 const { app, BrowserWindow, dialog } = require('electron');
 const sfdxUtils = require('./shared/sfdxUtils.js');
 const ui = require('./shared/ui.js');
-let commands = exports.commands = require('./shared/commands');
 const path=require('path');
 const fse=require('fs-extra');
 const fixPath = require('fix-path'); 
@@ -10,10 +9,20 @@ fixPath();
 const windows = new Set();
 
 const getHomeDir = exports.getHomeDir = () => {
+    return app.getPath('home');
+}
+
+const getDataDir = exports.getDataDir = () => {
     return app.getPath('userData');
 }
 
-sfdxUtils.setHomeDir(getHomeDir());
+let commandFile='./shared/commands';
+let personalCommandFile=path.join(getHomeDir(), '.sfdxgui', 'commands.js');
+if (fse.existsSync(personalCommandFile)) {
+    commandFile=personalCommandFile;
+}
+
+let commands = exports.commands = require(commandFile);
 
 let username;
 let devhubusername;
@@ -54,6 +63,14 @@ const refreshOrgs = exports.refreshOrgs = () => {
     setupWindow.webContents.loadURL(`file://${__dirname}/setup.html`);
 }
 
+const refreshConfig = exports.refreshConfig = () => {
+    console.log('In refresh config');
+    getConfig();
+    for (window of windows) {
+        window.webContents.send('config');
+    }
+}
+
 const closeSetup = exports.closeSetup = () => {
     setupWindow.destroy();
     setupWindow=null;
@@ -70,6 +87,7 @@ app.on('ready', () => {
     );
     //mainWindow.webContents.openDevTools();
     mainWindow.webContents.loadURL(`file://${__dirname}/home.html`);
+    windows.add(mainWindow);
 });
   
 
