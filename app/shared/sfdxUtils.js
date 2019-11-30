@@ -25,7 +25,11 @@ const runSfdx = exports.runSfdx = (params) => {
     let result;
     try {
         console.log('Executing command sfdx ' + params);
-        const resultJSON=child_process.execFileSync('sfdx', params, {stdio: ['pipe', 'pipe', 'pipe']});
+        let exe='sfdx';
+        if (process.platform === "win32") {
+            exe='sfdx.cmd';
+        }
+        const resultJSON=child_process.execFileSync(exe, params, {stdio: ['pipe', 'pipe', 'pipe']});
         result=JSON.parse(resultJSON);
     }
     catch (exc) {
