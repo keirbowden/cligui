@@ -30,7 +30,6 @@ const runSfdx = exports.runSfdx = (params) => {
     }
     catch (exc) {
         console.log('Exception ' + exc);
-        fse.closeSync(err);
         let stdoutJSON=exc.stdout.toString();
         if ( (stdoutJSON) && (stdoutJSON.length>0) ) {
             let stdout=JSON.parse(stdoutJSON);

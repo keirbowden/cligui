@@ -367,8 +367,39 @@ const groups = exports.groups =
                             type: 'text',
                             default: 'bg_PRD_PlatformNameRetrievalService_Test',
                             flag: '-t'
-                        }
+                        },                        
                     ]        
+                },
+                {
+                    name: 'runlocal',
+                    label: 'Run Local Tests',
+                    icon: 'multi_select_checkbox',
+                    startMessage: 'Running all tests in the org namespace',
+                    completeMessage: 'All tests in the org namespace run',
+                    command: 'sfdx',
+                    subcommand: 'force:apex:test:run',
+                    instructions: 'TODO',
+                    executelabel: 'Run',
+                    refreshConfig: false,
+                    refreshOrgs: false,
+                    json: true,
+                    polling: {
+                        supported: true,
+                        type: 'test',
+                    },
+                    overview : 'TODO',
+                    additionalflags: '-l RunLocalTests',
+                    params : [
+                        {
+                            name : 'username',
+                            label: 'Username',
+                            type: 'org',
+                            default: false,
+                            allowEmpty: true,
+                            variant: 'all',
+                            flag: '-u'
+                        }
+                    ]
                 }
             ]
         },

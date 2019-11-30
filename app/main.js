@@ -145,7 +145,7 @@ const broadcastMessage = exports.broadcastMessage = (msg) => {
 }
 
 const setOrgs = exports.setOrgs = (inOrgs) => {
-    console.log('Setting orgs to ' + inOrgs);
+    console.log('Setting orgs to ' + JSON.stringify(inOrgs, null, 4));
     orgs=inOrgs;
     broadcastMessage('Orgs refreshed');
 }
