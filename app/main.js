@@ -12,25 +12,41 @@ const getHomeDir = exports.getHomeDir = () => {
     return app.getPath('home');
 }
 
+const getGUIDir = exports.getGUIDir = () => {
+    return path.join(app.getPath('home'), '.cligui');
+}
+
 const getDataDir = exports.getDataDir = () => {
     return app.getPath('userData');
 }
 
+let hasLocalCommands = exports.hasLocalCommands = false;
+
 let commandFile='./shared/commands';
-let personalCommandFile=path.join(getHomeDir(), '.sfdxgui', 'commands.js');
+let personalCommandFile=path.join(getGUIDir(), 'commands.js');
 if (fse.existsSync(personalCommandFile)) {
     commandFile=personalCommandFile;
+    hasLocalCommands=true;
 }
 
 let commands = exports.commands = require(commandFile);
+let commandsByName=exports.commandsByName=new Map();
+for (let group of commands.groups) {
+    for (let command of group.commands) {
+        commandsByName.set(command.name, command);
+    }
+}
 
+let config;
 let username;
 let devhubusername;
 
 const getConfig = exports.getConfig = () => {
-    let config=sfdxUtils.getConfig();
+    config=sfdxUtils.getConfig();
     username=config.username;
     devhubusername=config.devhubusername;
+
+    return config;
 }
 
 getConfig();
@@ -84,7 +100,13 @@ app.on('ready', () => {
           }
         }
     );
-    //mainWindow.webContents.openDevTools();
+    let paramDir=process.argv[2];
+    console.log('paramDir = ' + process.argv[2]);
+    if (paramDir!==undefined) {
+        changeDirectory(paramDir);
+    }
+    
+        //mainWindow.webContents.openDevTools();
     mainWindow.webContents.loadURL(`file://${__dirname}/home.html`);
     windows.add(mainWindow);
 });
@@ -144,10 +166,10 @@ const broadcastMessage = exports.broadcastMessage = (msg) => {
     }
 }
 
-const setOrgs = exports.setOrgs = (inOrgs) => {
-    console.log('Setting orgs to ' + JSON.stringify(inOrgs, null, 4));
+const setOrgs = exports.setOrgs = (inOrgs, refresh) => {
+    //console.log('Setting orgs to ' + JSON.stringify(inOrgs, null, 4));
     orgs=inOrgs;
-    broadcastMessage('Orgs refreshed');
+    broadcastMessage('Orgs ' + (refresh?'refreshed':'loaded'));
 }
 
 const getOrgs = exports.getOrgs = (force) => {

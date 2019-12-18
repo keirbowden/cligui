@@ -90,9 +90,11 @@ const setupHeader = exports.setupHeader = (command, mainProcess) => {
     });
 }
 
-const setupFooter = exports.setupFooter = (id, username, devhubusername, message) => {
-    const footerEle=document.querySelector('#' + id)
-    footerEle.innerHTML='Directory: ' + process.cwd() + (username?' | User: ' + username:'') + 
-                        (devhubusername?' | Dev Hub: ' + devhubusername:'') + 
+const setupFooter = exports.setupFooter = (id, config, message) => {
+    const footerEle=document.querySelector('#' + id);
+
+    footerEle.innerHTML='Directory: ' + process.cwd() + (config.username?' | User: ' + config.username:'') + 
+                        (config.devhubusername?' | Dev Hub: ' + config.devhubusername:'') + 
+                        (config.package?' | Package: ' + config.package:'') + 
                         (message?' | ' + message:'');
 }

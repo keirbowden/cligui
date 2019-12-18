@@ -2,46 +2,84 @@ const { remote, ipcRenderer } = require('electron');
 const mainProcess = remote.require('./main.js');
 const sfdxUtils = require('./shared/sfdxUtils.js');
 const ui = require('./shared/ui.js');
+const path=require('path');
+const fse=require('fs-extra');
 const fixPath = require('fix-path'); 
 fixPath();
 
 const currentWindow = remote.getCurrentWindow();
 
-ui.setupFooter('footer', mainProcess.getUsername(), mainProcess.getDevhubusername());
+ui.setupFooter('footer', mainProcess.getConfig());
 
-let tabsHtml='';
-let contentHtml='';
 let count=0;
 for (let group of mainProcess.commands.groups) {
-    let classes='slds-tabs_default__item';
+    let classes=['slds-tabs_default__item'];
     if (0===count) {
-        classes+=' slds-is-active';
+        classes.push('slds-is-active');
     }
+    let tabsEle=document.createElement('li');
+    tabsEle.classList.add(...classes);
+    tabsEle.title=group.name;
+    tabsEle.setAttribute('role', 'presentation');
+    tabsEle.id='tab-'+ group.name;
+    console.log('Created tabs ele');
     
-    tabsHtml+='<li class="' + classes + '" title="' + group.name + '" role="presentation" id="tab-' + group.name + '">\n' + 
-          '    <a class="slds-tabs_default__link" href="javascript:void(0);" role="tab" tabindex="0" aria-selected="' + (0===count?'true':'false') +'"\n' + 
-          '    aria-controls="tab-' + group.name + '" id="tab-' + group.name + '-link">' + group.label + '</a>\n' + 
-          '</li>\n';
+    let tabLinkEle=document.createElement('a');
+    tabLinkEle.classList.add('slds-tabs_default__link');
+    tabLinkEle.setAttribute('href', 'javascript:void(0);')
+    tabLinkEle.setAttribute('role', 'tab')
+    tabLinkEle.setAttribute('tabindex', count)
+    tabLinkEle.setAttribute('aria-selected', (0===count?'true':'false'));
+    tabLinkEle.setAttribute('aria-controls', group.name);
+    tabLinkEle.id='tab-' + group.name + '-link';
+    tabLinkEle.innerText=group.label;
 
-    contentHtml+='<div id="tab-' + group.name + '-content" class="slds-tabs_default__content slds-' + (0===count?'show':'hide') + ' slds-m-around_small" role="tabpanel"\n' +
-                 '                aria-labelledby="tab-' + group.name + '">\n' + 
-                 '    <div class="slds-grid slds-gutters slds-wrap">\n ';
+    console.log('Created link ele');
+
+    tabsEle.appendChild(tabLinkEle);
+
+    const tabContainer=document.querySelector('#tabs');
+    tabContainer.appendChild(tabsEle);
+    
+    let contentEle=document.createElement('div');
+    contentEle.id='tab-' + group.name + '-content';
+    contentEle.classList.add('slds-tabs_default__content');
+    contentEle.classList.add('slds-' + (0===count?'show':'hide'));
+    contentEle.classList.add('slds-m-around_small');
+    contentEle.setAttribute('role', 'tabpanel');
+    contentEle.setAttribute('aria-labelledby', 'tab-' + group.name);
+
+    let gridEle=document.createElement('div');
+    gridEle.classList.add('slds-grid');
+    gridEle.classList.add('slds-gutters');
+    gridEle.classList.add('slds-wrap');
+    contentEle.appendChild(gridEle);
+
+    const tabsContentContainer=document.querySelector('#tab-contents');
+    tabsContentContainer.appendChild(contentEle);
+
     for (let command of group.commands) {
-        contentHtml+='        <div class="slds-col">\n' + 
-                   '            <button class="slds-button slds-button_outline-brand slds-p-top_large slds-p-bottom_large" id="' + command.name + '-btn">'+ command.label + '</button>\n' +
-                   '        </div>\n';
-    }
-    contentHtml+='    </div>\n' + 
-                 '</div>\n'
 
+        let colEle=document.createElement('div');
+        colEle.classList.add('slds-col');
+        colEle.classList.add('slds-size_1-of-4');
+        colEle.classList.add('slds-p-bottom_medium');
+
+        let colButEle=document.createElement('button');
+        colButEle.classList.add('command-button');
+        colButEle.classList.add('slds-button');
+        colButEle.classList.add('slds-button_' + (command.type?command.type:'outline-brand'));
+        colButEle.classList.add('slds-p-top_large');
+        colButEle.classList.add('slds-p-bottom_large');
+        colButEle.id=command.name + '-btn';
+        colButEle.innerText=command.label;
+        colEle.appendChild(colButEle);
+        
+        gridEle.appendChild(colEle);
+    }
     count++;
 }
 
-const tabsEle=document.querySelector('#tabs');
-tabsEle.innerHTML=tabsHtml;
-
-const tabsContentEle=document.querySelector('#tab-contents');
-tabsContentEle.innerHTML=contentHtml;
 
 for (let group of mainProcess.commands.groups) {
     group.link=document.querySelector('#tab-' + group.name + '-link');
@@ -79,7 +117,14 @@ const removeActiveTab=() => {
 }
 const helpButton = document.querySelector('#help-button');
 helpButton.addEventListener('click', () => {
-    mainProcess.createWindow('help.html', 500, 750, 50, 50, {name: 'CLI Gui', command: 'CLI Gui'});
+    mainProcess.createWindow('help.html', 500, 750, 50, 50, {name: 'CLI Gui', command: 'gui'});
+});
+
+const orgsButton = document.querySelector('#orgs-button');
+orgsButton.addEventListener('click', () => {
+    console.log('Calling refresh orgs');
+    mainProcess.refreshOrgs();
+    console.log('Done calling refresh orgs');
 });
 
 const dirButton = document.querySelector('#dir-button');
@@ -88,11 +133,41 @@ dirButton.addEventListener('click', () => {
     if (dir) {
         process.chdir(dir);
         mainProcess.changeDirectory(dir);
-        ui.setupFooter('footer', mainProcess.getUsername(), mainProcess.getDevhubusername());
+        ui.setupFooter('footer', mainProcess.getConfig());
     }
+});
+
+const customCommandsButtonContainer=document.querySelector('#custom-commands-button-container');
+let guiDir=mainProcess.getGUIDir();
+let personalCommandFile=path.join(guiDir, 'commands.js');
+if (!fse.existsSync(personalCommandFile)) {
+    const ccBtn=document.createElement('button');
+    ccBtn.id='orgs-button';
+    ccBtn.classList.add('slds-button');
+    ccBtn.classList.add('slds-button_neutral');
+    ccBtn.innerText='Write Local Command File';
+    ccBtn.addEventListener('click', () => {
+        ui.executeWithSpinner(spinEle, () => {
+            const fileContent=fse.readFileSync(require.resolve('./shared/commands'));
+            if (!fse.existsSync(guiDir)) {
+                fse.mkdirSync(guiDir);
+            }
+            let personalCommandFile=path.join(guiDir, 'commands.js');
+            fse.writeFileSync(personalCommandFile, fileContent);
+            while (customCommandsButtonContainer.firstChild) {
+                customCommandsButtonContainer.removeChild(customCommandsButtonContainer.firstChild);
+            }
+        });
+    });
+    customCommandsButtonContainer.appendChild(ccBtn);
+}
+
+ipcRenderer.on('broadcast', (event, message) => {
+    ui.setupFooter('footer', mainProcess.getConfig(), message);
 });
 
 ipcRenderer.on('config', (event) => {
     console.log('Received config event');
-    ui.setupFooter('footer', mainProcess.getUsername(), mainProcess.getDevhubusername());
+    ui.setupFooter('footer', mainProcess.getConfig());
 });
+

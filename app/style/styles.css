@@ -9,7 +9,7 @@
     padding: 0.25em;
 }
 
-.output {
+.log {
     min-height:70%;
 }
 
@@ -19,4 +19,8 @@
 
 .command {
     background-color : #ededeb;
+}
+
+.command-button {
+    width:100%;
 }

@@ -36,7 +36,7 @@ const setConfig = () => {
     config=sfdxUtils.getConfig();
     username=config.username;
     devhubusername=config.devhubusername;
-    ui.setupFooter('footer', username, devhubusername);    
+    ui.setupFooter('footer', config);    
 }
 
 const dirButton = document.querySelector('#dir-button');
@@ -47,8 +47,8 @@ dirButton.addEventListener('click', () => {
     }
 });
 
-const outputButton = document.querySelector('#output-button');
-outputButton.addEventListener('click', () => {
+const logButton = document.querySelector('#log-button');
+logButton.addEventListener('click', () => {
     logging.toggleModal();
 });
 
@@ -59,9 +59,11 @@ ipcRenderer.on('params', (event, params) => {
     command=params.command;
     ui.setupHeader(command, mainProcess);
 
+    const instContainer=document.getElementById('instructions');
+    instContainer.innerHTML=(command.instructions?command.instructions:'<i>No instructions provided</i>');
     orgs=mainProcess.getOrgs();
     paramUtils.addParams('params', command, orgs);
-    paramUtils.addHandlers(command, updateCommand, username, devhubusername, mainProcess, currentWindow);
+    paramUtils.addHandlers(command, updateCommand, config, mainProcess, currentWindow);
 
     executeButton.innerHTML=command.executelabel;
     updateCommand();
@@ -99,10 +101,12 @@ const getParams = () => {
 
             case 'number':
                 val=param.input.value;
-                if ( (''!==val) && (val>=param.min) && (val<=param.max) ) {
+                if ( (''!==val) && 
+                    ((param.min===undefined) || (val>=param.min)) && 
+                    ((param.min===undefined) || (val<=param.max)) ) {
                     paramStr+=' ' + param.flag + separator + val;
                 }
-                else {
+                else if (param.required) {
                     disable=true;
                 }
                 break;
@@ -110,8 +114,10 @@ const getParams = () => {
 
             case 'text':
                 val=param.input.value;
+                let quote='';
                 if (''!==val) {
-                    paramStr+=' ' + param.flag + separator + val;
+                    val=val.replace(/ /g, '\\ ');
+                    paramStr+=' ' + param.flag + separator + quote + val + quote;
                 }
                 break;
             ;;
@@ -146,12 +152,21 @@ const getParams = () => {
 
             case 'select':
             case 'logfile':
+            case 'package':
+            case 'packageversion':
+                console.log('Type = ' + param.type);
                 let selectedIndex=param.input.selectedIndex;
                 if (-1!=selectedIndex) {
-                    paramStr+=' ' + param.flag + separator + param.values[selectedIndex];
+                    if (param.type=='package') {
+                        command.package=param.values[selectedIndex];
+                    }
+                    if (!param.internal) {
+                        paramStr+=' ' + param.flag + separator + param.values[selectedIndex];
+                    }
                 }
                 else {
-                    disabled=true;
+                    console.log('Setting disable to true');
+                    disable=true;
                 }
                 break;
             ;;
@@ -186,12 +201,12 @@ const completed = (success, result) => {
 }
 
 ipcRenderer.on('broadcast', (event, message) => {
-    ui.setupFooter('footer', username, devhubusername, message);
+    ui.setupFooter('footer', config, message);
     logging.log(message);
 });
 
 ipcRenderer.on('config', (event) => {
     setConfig();
-    ui.setupFooter('footer', username, devhubusername, message);
+    ui.setupFooter('footer', config, message);
     logging.log('Refreshed config');
 });

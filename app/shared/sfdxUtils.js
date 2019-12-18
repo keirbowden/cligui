@@ -67,11 +67,19 @@ const executeSfdxWithLogging = exports.executeSfdxWithLogging = (command, params
             if (command.resultprocessor) {
                 switch (command.resultprocessor) {
                     case 'loglist' :
-                        outputLogListResult(result.result);
+                        logLogListResult(result.result);
+                        break;
+                    ;;
+                    case 'packageversionlist' :
+                        logPackageVersionListResult(result.result);
+                        break;
+                    ;;
+                    case 'packagelist' :
+                        logPackageListResult(result.result);
                         break;
                     ;;
                     case 'logfile':
-                        outputLogFileResult(result.result);
+                        logLogFileResult(result.result);
                         break;
                     ;;
                 }
@@ -129,7 +137,7 @@ const pollCommandStatus = (command, result, completeCB) => {
                 }
                 else if ( (pollResult.status==0) || (pollResult.status==100) ) {
                     logging.log('Test run complete');
-                    outputTestResults(pollResult.result);
+                    logTestResults(pollResult.result);
                     stop=true;
                 }
                 if (stop) {
@@ -145,13 +153,13 @@ const pollCommandStatus = (command, result, completeCB) => {
     }
 
 }
-const outputLogFileResult = (result) => {
+const logLogFileResult = (result) => {
     logging.log('------------- Log File Start -------------');
     logging.log(result.log);
     logging.log('------------- Log File End -------------');
 }
 
-const outputLogListResult = (result) => {
+const logLogListResult = (result) => {
     for (let log of getLogList(result)) {
         logging.log(log);
     }
@@ -168,7 +176,39 @@ const getLogList = (result) => {
     return logEntries;
 }
 
-const outputTestResults = (result) => {
+const logPackageListResult = (result) => {
+    for (let package of getPackageList(result)) {
+        logging.log(package);
+    }
+}
+
+const getPackageList = (result) => {
+    let packageEntries=[];
+    let idx=0;
+    for (let package of result) {
+        packageEntries.push(++idx + ' : ' + package.Name + ' - ' + package.Description + ', ' + package.ContainerOptions + ' (' + package.Id + ')');
+    }
+
+    return packageEntries;
+}
+
+const logPackageVersionListResult = (result) => {
+    for (let version of getPackageVersionList(result)) {
+        logging.log(version);
+    }
+}
+
+const getPackageVersionList = (result) => {
+    let versionEntries=[];
+    let idx=0;
+    for (let version of result) {
+        versionEntries.push(++idx + ' : ' + version.Name + ' - ' + version.Description + ', ' + (version.IsReleased?'Released. ':'') + 'Created ' + version.CreatedDate + ' (' + version.SubscriberPackageVersionId + ')');
+    }
+
+    return versionEntries;
+}
+
+const logTestResults = (result) => {
     logging.log('Outcome', result.summary.outcome);
     logging.log('Tests Executed : ' + result.summary.testsRan);
     logging.log('Tests Passed   : ' + result.summary.passing);
@@ -206,7 +246,7 @@ const loadOrgs = exports.loadOrgs = (mainProcess, ele, force) => {
         const orgsResult = JSON.parse(fse.readFileSync(filename));
         console.log('Loading file ' + filename);
         orgs=orgsResult.result;
-        mainProcess.setOrgs(orgs);
+        mainProcess.setOrgs(orgs, false);
     }
     else {
         console.log('Retrieving orgs');
@@ -216,7 +256,7 @@ const loadOrgs = exports.loadOrgs = (mainProcess, ele, force) => {
             if (result.status===0)  {
                 fse.writeFileSync(filename, JSON.stringify(result));
                 orgs=result.result;
-                mainProcess.setOrgs(orgs);
+                mainProcess.setOrgs(orgs, true);
             }    
             else {
                 alert('Unable to load orgs ' + result.message);
@@ -246,6 +286,16 @@ const getConfig = exports.getConfig = () => {
             }
         }
         console.log('Username = ' + config.username + ', devhub = ' + config.devhubusername);
+    }
+
+    // open file
+    let projectFileName='./sfdx-project.json';
+    if (fse.existsSync(projectFileName)) {
+        config.project = JSON.parse(fse.readFileSync(projectFileName));
+        config.package=config.project.packageDirectories[0].package;
+    }
+    else {
+        config.project=null;
     }
 
     return config;

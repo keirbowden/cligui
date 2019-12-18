@@ -15,6 +15,7 @@ const groups = exports.groups =
                     openorg: 'user',
                     instructions: 'TODO',
                     executelabel: 'Create',
+                    type: 'success',
                     refreshOrgs: true,
                     json: {
                         supported: true,
@@ -78,6 +79,7 @@ const groups = exports.groups =
                     subcommand: 'force:org:delete',
                     instructions: 'TODO',
                     executelabel: 'Delete',
+                    type: 'destructive',
                     refreshOrgs: true,
                     json: {
                         supported: true,
@@ -96,41 +98,13 @@ const groups = exports.groups =
                             flag: '-u'
                         }
                     ]        
-                }
+                },
             ]
         },
         {
             name : 'auth',
             label: 'Auth',
             commands : [
-                {
-                    name: 'openorg',
-                    label: 'Open Org',
-                    icon: 'open',
-                    startMessage: 'Opening org',
-                    completeMessage: 'Org opened',
-                    command: 'sfdx',
-                    subcommand: 'force:org:open',
-                    instructions: 'TODO',
-                    executelabel: 'Open',
-                    refreshOrgs: false,
-                    json: {
-                        supported: true,
-                        polling: false,
-                        status: 'status',
-                        result: 'result'
-                    },
-                    overview : 'TODO',
-                    params : [
-                        {
-                            name : 'org',
-                            label: 'Choose Org',
-                            type: 'org',
-                            variant: 'all',
-                            flag: '-u'
-                        }
-                    ]        
-                },
                 {
                     name: 'login',
                     label: 'Login to Org',
@@ -141,6 +115,7 @@ const groups = exports.groups =
                     subcommand: 'force:auth:web:login',
                     instructions: 'TODO',
                     executelabel: 'Login',
+                    type: 'success',
                     refreshOrgs: true,
                     json: {
                         supported: true,
@@ -189,6 +164,7 @@ const groups = exports.groups =
                     subcommand: 'force:auth:logout',
                     instructions: 'TODO',
                     executelabel: 'Logout',
+                    type: 'destructive',
                     refreshOrgs: true,
                     json: {
                         supported: true,
@@ -208,47 +184,6 @@ const groups = exports.groups =
                         }
                     ]        
                 },
-                {
-                    name: 'display',
-                    label: 'Display Org',
-                    icon: 'info',
-                    startMessage: 'Getting org details',
-                    completeMessage: 'Display org complete',
-                    command: 'sfdx',
-                    subcommand: 'force:org:display',
-                    instructions: 'TODO',
-                    executelabel: 'Display',
-                    refreshOrgs: false,
-                    json: {
-                        supported: true,
-                        polling: false,
-                        status: 'status',
-                        result: 'result'
-                    },
-                    overview : 'TODO',
-                    params : [
-                        {
-                            name : 'org',
-                            label: 'Choose Org',
-                            type: 'org',
-                            variant: 'all',
-                            flag: '-u'
-                        },
-                        {
-                            name : 'verbose',
-                            label: 'Verbose ?',
-                            type: 'checkbox',
-                            default: 'false',
-                            flag: '--verbose'
-                        }
-                    ]        
-                }
-            ]
-        },
-        {
-            name : 'config',
-            label: 'Config',
-            commands : [
                 {
                     name: 'defaultuser',
                     label: 'Default Username',
@@ -330,9 +265,37 @@ const groups = exports.groups =
             ]
         },
         {
-            name : 'test',
-            label: 'Test',
+            name : 'org',
+            label: 'Org',
             commands : [
+                {
+                    name: 'openorg',
+                    label: 'Open Org',
+                    icon: 'open',
+                    startMessage: 'Opening org',
+                    completeMessage: 'Org opened',
+                    command: 'sfdx',
+                    subcommand: 'force:org:open',
+                    instructions: 'TODO',
+                    executelabel: 'Open',
+                    refreshOrgs: false,
+                    json: {
+                        supported: true,
+                        polling: false,
+                        status: 'status',
+                        result: 'result'
+                    },
+                    overview : 'TODO',
+                    params : [
+                        {
+                            name : 'org',
+                            label: 'Choose Org',
+                            type: 'org',
+                            variant: 'all',
+                            flag: '-u'
+                        }
+                    ]        
+                },
                 {
                     name: 'runclass',
                     label: 'Run Test Class',
@@ -400,13 +363,7 @@ const groups = exports.groups =
                             flag: '-u'
                         }
                     ]
-                }
-            ]
-        },
-        {
-            name : 'log',
-            label: 'Logging',
-            commands : [
+                },
                 {
                     name: 'getlog',
                     label: 'Get Log File',
@@ -470,8 +427,255 @@ const groups = exports.groups =
                             flag: '-u'
                         }
                     ]        
+                },
+                {
+                    name: 'display',
+                    label: 'Display Org',
+                    icon: 'info',
+                    startMessage: 'Getting org details',
+                    completeMessage: 'Display org complete',
+                    command: 'sfdx',
+                    subcommand: 'force:org:display',
+                    instructions: 'TODO',
+                    executelabel: 'Display',
+                    refreshOrgs: false,
+                    json: {
+                        supported: true,
+                        polling: false,
+                        status: 'status',
+                        result: 'result'
+                    },
+                    overview : 'TODO',
+                    params : [
+                        {
+                            name : 'org',
+                            label: 'Choose Org',
+                            type: 'org',
+                            variant: 'all',
+                            flag: '-u'
+                        },
+                        {
+                            name : 'verbose',
+                            label: 'Verbose ?',
+                            type: 'checkbox',
+                            default: 'false',
+                            flag: '--verbose'
+                        }
+                    ]        
                 }
             ]
+        },
+        {
+            name : 'pkg',
+            label: 'Packaging',
+            commands : [
+                {
+                    name: 'pkgcreatever',
+                    label: 'Create Version',
+                    icon: 'open',
+                    startMessage: 'Creating version',
+                    completeMessage: 'Version created',
+                    command: 'sfdx',
+                    subcommand: 'force:package:version:create',
+                    instructions: 'TODO',
+                    executelabel: 'Create Version',
+                    refreshOrgs: false,
+                    json: {
+                        supported: true,
+                        polling: false,
+                        status: 'status',
+                        result: 'result'
+                    },
+                    overview : 'TODO',
+                    params : [
+                        {
+                            name : 'devhub',
+                            label: 'Dev Hub',
+                            type: 'org',
+                            default: true,
+                            variant: 'hub',
+                            flag: '-v'
+                        },
+                        {
+                            name : 'package',
+                            label: 'Package',
+                            type: 'package',
+                            flag: '-p'
+                        },
+                        {
+                            name : 'key',
+                            label: 'Key',
+                            type: 'text',
+                            flag: '-k',
+                            excludes: 'bypasskey'
+                        },
+                        {
+                            name : 'coverage',
+                            label: 'Run Tests',
+                            type: 'checkbox',
+                            flag: '-c'
+                        },
+                        {
+                            name : 'description',
+                            label: 'Version Description',
+                            type: 'text',
+                            quote: true,
+                            flag: '-e'
+                        },
+                        {
+                            name : 'definition',
+                            label: 'Definition File',
+                            type: 'file',
+                            flag: '-f'
+                        },
+                        {
+                            name : 'bypasskey',
+                            label: 'Bypass Key',
+                            type: 'checkbox',
+                            flag: '-x',
+                            excludes: 'key'
+                        },
+                        {
+                            name: 'wait',
+                            label: 'Wait (mins)',
+                            type: 'number', 
+                            min: 0,
+                            max: 60,
+                            flag: '-w'
+                        }
+                    ]        
+                },
+                {
+                    name: 'pkgpromotever',
+                    label: 'Promote Version',
+                    icon: 'open',
+                    startMessage: 'Promoting version',
+                    completeMessage: 'Version promoted',
+                    command: 'sfdx',
+                    subcommand: 'force:package:version:promote',
+                    instructions: 'TODO',
+                    executelabel: 'Promote Version',
+                    refreshOrgs: false,
+                    json: {
+                        supported: true,
+                        polling: false,
+                        status: 'status',
+                        result: 'result'
+                    },
+                    overview : 'TODO',
+                    additionalflags : '-n',
+                    params : [
+                        {
+                            name : 'devhub',
+                            label: 'Dev Hub',
+                            type: 'org',
+                            default: true,
+                            variant: 'hub',
+                            flag: '-v'
+                        },
+                        {
+                            name : 'package',
+                            label: 'Package',
+                            type: 'package',
+                            flag: '-p',
+                            internal: true
+                        },
+                        {
+                            name : 'version',
+                            label: 'Version',
+                            type: 'packageversion',
+                            flag: '-p'
+                        }
+                    ]        
+                },
+                {
+                    name: 'pkglist',
+                    label: 'List Packages',
+                    icon: 'open',
+                    startMessage: 'Retrieving package list',
+                    completeMessage: 'Package list retrieved',
+                    command: 'sfdx',
+                    subcommand: 'force:package:list',
+                    instructions: 'TODO',
+                    executelabel: 'List Packages',
+                    resultprocessor: 'packagelist',
+                    refreshOrgs: false,
+                    json: {
+                        supported: true,
+                        polling: false,
+                        status: 'status',
+                        result: 'result'
+                    },
+                    overview : 'TODO',
+                    params : [
+                        {
+                            name : 'devhub',
+                            label: 'Dev Hub',
+                            type: 'org',
+                            default: true,
+                            variant: 'hub',
+                            flag: '-v'
+                        }
+                    ]        
+                },
+                {
+                    name: 'pkgverlist',
+                    label: 'List Package Versions',
+                    icon: 'open',
+                    startMessage: 'Retrieving package versions',
+                    completeMessage: 'Package versions retrieved',
+                    command: 'sfdx',
+                    subcommand: 'force:package:version:list',
+                    instructions: 'TODO',
+                    executelabel: 'List Package Versions',
+                    resultprocessor: 'packageversionlist',
+                    refreshOrgs: false,
+                    json: {
+                        supported: true,
+                        polling: false,
+                        status: 'status',
+                        result: 'result'
+                    },
+                    overview : 'TODO',
+                    params : [
+                        {
+                            name : 'devhub',
+                            label: 'Dev Hub',
+                            type: 'org',
+                            default: true,
+                            variant: 'hub',
+                            flag: '-v'
+                        },
+                        {
+                            name : 'package',
+                            label: 'Package',
+                            type: 'package',
+                            flag: '-p'
+                        },
+                        {
+                            name : 'created',
+                            label: 'Created Last Days',
+                            type: 'number',
+                            min: 0,
+                            max: 500,
+                            flag: '-c'
+                        },
+                        {
+                            name : 'modified',
+                            label: 'Modified Last Days',
+                            type: 'number',
+                            min: 0,
+                            max: 500,
+                            flag: '-m'
+                        },
+                        {
+                            name : 'released',
+                            label: 'Released Only',
+                            type: 'checkbox',
+                            flag: '-r'
+                        }                        
+                    ]        
+                }            
+            ]
         }
-
     ];

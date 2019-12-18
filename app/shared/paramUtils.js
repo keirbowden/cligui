@@ -1,6 +1,7 @@
 const orgUtils = require('./orgUtils.js');
 const sfdxUtils = require('./sfdxUtils.js');
 const ui = require('./ui.js');
+const logging = require('./logging.js');
 
 const getFormElements = (param) => {
     const formEle=document.createElement('div');
@@ -105,7 +106,111 @@ const addLogFileOptions=(result, param) => {
     }
 }
 
- const addNumberParam = (param) => {
+const addPackageParam = (param) => {
+    const formEles=getFormElements(param);
+
+    const butEle=document.createElement('button');
+    butEle.classList.add('slds-top-m_small', 'slds-button', 'slds-button_outline-brand', 'slds-m-bottom_small');
+    butEle.id=param.name+'-button';
+    butEle.innerHTML='Get Packages';
+    formEles.contEle.appendChild(butEle);
+
+    const selContEle=document.createElement('div');
+    selContEle.classList.add('slds-select_container');
+    formEles.contEle.appendChild(selContEle);
+
+    const selEle=document.createElement('select');
+    selEle.classList.add('slds-select');
+    selEle.id=param.name+'-select';
+    selContEle.appendChild(selEle);
+ 
+    return formEles.formEle;
+ }
+ 
+ const getPackageOptions = (param, username, config, callback) => {
+    let spinEle=document.querySelector('#spinner');
+    ui.executeWithSpinner(spinEle, () => {
+        const result=sfdxUtils.runSfdxCommand('force:package:list', '-v ' + username);
+        console.log('Result = ' + JSON.stringify(result, null, 4));
+        addPackageOptions(result, param, config);
+        callback();
+    })
+}
+
+const addPackageOptions=(result, param, config) => {
+    const select=document.querySelector('#' + param.name + '-select');
+    while (select.options.length > 0) {                
+        select.remove(0);
+    }      
+    param.values=[];
+    let first=true;
+    for (let idx=result.result.length-1; idx>=0; idx--) {
+        let package=result.result[idx];
+        option=document.createElement('option');
+        option.value=package.Id;
+        option.selected=(first||package.Name===config.package);
+        option.label=package.Name + ' - ' + package.Description + ' (' + package.Id + ')';
+        select.appendChild(option);    
+        param.values.push(package.Id);
+        first=false;
+    }
+}
+
+const addPackageVersionParam = (param) => {
+    const formEles=getFormElements(param);
+
+    const butEle=document.createElement('button');
+    butEle.classList.add('slds-top-m_small', 'slds-button', 'slds-button_outline-brand', 'slds-m-bottom_small');
+    butEle.id=param.name+'-button';
+    butEle.innerHTML='Get Package Versions';
+    formEles.contEle.appendChild(butEle);
+
+    const selContEle=document.createElement('div');
+    selContEle.classList.add('slds-select_container');
+    formEles.contEle.appendChild(selContEle);
+
+    const selEle=document.createElement('select');
+    selEle.classList.add('slds-select');
+    selEle.id=param.name+'-select';
+    selContEle.appendChild(selEle);
+ 
+    return formEles.formEle;
+ }
+ 
+ const getPackageVersionOptions = (param, username, package, config, callback) => {
+    console.log('At 1');
+    let spinEle=document.querySelector('#spinner');
+    ui.executeWithSpinner(spinEle, () => {
+        console.log('Username = ' + username + ', package = ' + package);
+        const result=sfdxUtils.runSfdxCommand('force:package:version:list', '-v ' + username + ' -p ' + package);
+        console.log('Result = ' + JSON.stringify(result, null, 4));
+        addPackageVersionOptions(result, param, config);
+        callback();
+    })
+}
+
+const addPackageVersionOptions=(result, param, config) => {
+    const select=document.querySelector('#' + param.name + '-select');
+    while (select.options.length > 0) {                
+        select.remove(0);
+    }      
+    param.values=[];
+    let first=true;
+    for (let idx=result.result.length-1; idx>=0; idx--) {
+        let package=result.result[idx];
+        if (!package.IsReleased) {
+            option=document.createElement('option');
+            option.value=package.SubscriberPackageVersionId.Id;
+            option.selected=first;
+            option.label=package.Version + ' - ' + package.Description + ' (' + package.SubscriberPackageVersionId + ')';
+            select.appendChild(option);    
+            param.values.push(package.Id);
+            first=false;        
+        }
+    }
+}
+
+const addNumberParam = (param) => {
     const formEles=getFormElements(param);
     const inpEle=document.createElement('input');
     inpEle.setAttribute('type', 'number');
@@ -239,6 +344,16 @@ const addParams = exports.addParams = (id, command, orgs) => {
                 paramsEle.appendChild(addLogfileParam(param));
                 break;
             ;;   
+
+            case 'package':
+                paramsEle.appendChild(addPackageParam(param));
+                break;
+            ;;   
+
+            case 'packageversion':
+                paramsEle.appendChild(addPackageVersionParam(param));
+                break;
+            ;;   
         }    
     }
 
@@ -254,16 +369,94 @@ const addParams = exports.addParams = (id, command, orgs) => {
     return paramsEle;
 }
 
-const addHandlers = exports.addHandlers = (command, callback, username, devhubusername, mainProcess, currentWindow) => {
+const clearExcludes = (param, command) => {
+    logging.log('Checking whether I should exclude - type = ' + param.type);
+    let clear=false;
+    switch (param.type) {
+        case 'checkbox':
+            const val=param.input.value;
+            logging.log('val = ' + val);
+            logging.log('Val = ' + val + ' param nam ' + param.name);
+            if (val==param.name) {
+                clear=true;;
+            }        
+            break;
+        ;;
+
+        case 'select':
+            let selectedIndex=param.input.selectedIndex;
+            if (-1!=selectedIndex) {
+                clear=true;
+            }
+            break;
+        ;;
+
+        default:
+            if (param.input.value!='') {
+                clear=true;
+            }
+    }
+    
+    if ( (clear) && (null!=param.excludes) ) {
+        const excludes=param.excludes.split(',');
+        for (let cand of command.params) {
+            if (excludes.includes(cand.name)) {
+                switch (cand.type) {
+                    case 'checkbox':
+                        cand.input.checked=false;                    
+                        break;
+                    ;;
+            
+                    default:
+                        logging.log('Input = ' + cand.input);
+                        if (null!=cand.input) {
+                            if (cand.default) {
+                                cand.input.value=param.default;
+                            }
+                            else {
+                                cand.input.value='';
+                            }
+                        }
+                    ;;
+                }
+            }
+        }
+    }
+}
+
+const addHandlers = exports.addHandlers = (command, callback, config, mainProcess, currentWindow) => {
     // add handlers for inputs
     for (let param of command.params) {
         param.input=document.querySelector('#' + param.name + '-input');
         if (null!=param.input) {
             param.input.addEventListener('change', () => {
+                clearExcludes(param, command);
                 callback();
             });
         }
         switch (param.type) {
+            case 'package' :
+                param.button=document.querySelector('#' + param.name + '-button');
+                param.button.addEventListener('click', () => {
+                    getPackageOptions(param, command.username, config, callback);                    
+                });
+                param.input=document.querySelector('#' + param.name + '-select');
+                param.input.addEventListener('change', () => {
+                    callback();
+                });
+                break;
+            ;;
+            case 'packageversion' :
+                param.button=document.querySelector('#' + param.name + '-button');
+                param.button.addEventListener('click', () => {
+                    getPackageVersionOptions(param, command.username, command.package, config, callback);                    
+                });
+                param.input=document.querySelector('#' + param.name + '-select');
+                param.input.addEventListener('change', () => {
+                    callback();
+                });
+                break;
+            ;;
             case 'logfile' :
                 param.button=document.querySelector('#' + param.name + '-button');
                 param.button.addEventListener('click', () => {
@@ -289,11 +482,11 @@ const addHandlers = exports.addHandlers = (command, callback, username, devhubus
             ;;
             case 'org' :
                 if (param.default) {
-                    if ( ('hub'==param.variant) && (devhubusername) ) {
-                        param.input.value=devhubusername;
+                    if ( ('hub'==param.variant) && (config.devhubusername) ) {
+                        param.input.value=config.devhubusername;
                     }
-                    else if (username) {
-                        param.input.value=username;
+                    else if (config.username) {
+                        param.input.value=config.username;
                     }
                 }
                 break;
@@ -301,6 +494,7 @@ const addHandlers = exports.addHandlers = (command, callback, username, devhubus
             case 'checkbox': 
                 param.input=document.querySelector('#' + param.name + '-cb');
                 param.input.addEventListener('change', () => {
+                    clearExcludes(param, command);
                     callback();
                 });
                 break;
@@ -308,6 +502,7 @@ const addHandlers = exports.addHandlers = (command, callback, username, devhubus
             case 'select':
                 param.input=document.querySelector('#' + param.name + '-select');
                 param.input.addEventListener('change', () => {
+                    clearExcludes(param, command);
                     callback();
                 });
                 break;
