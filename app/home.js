@@ -22,7 +22,6 @@ for (let group of mainProcess.commands.groups) {
     tabsEle.title=group.name;
     tabsEle.setAttribute('role', 'presentation');
     tabsEle.id='tab-'+ group.name;
-    console.log('Created tabs ele');
     
     let tabLinkEle=document.createElement('a');
     tabLinkEle.classList.add('slds-tabs_default__link');
@@ -33,8 +32,6 @@ for (let group of mainProcess.commands.groups) {
     tabLinkEle.setAttribute('aria-controls', group.name);
     tabLinkEle.id='tab-' + group.name + '-link';
     tabLinkEle.innerText=group.label;
-
-    console.log('Created link ele');
 
     tabsEle.appendChild(tabLinkEle);
 
@@ -122,9 +119,7 @@ helpButton.addEventListener('click', () => {
 
 const orgsButton = document.querySelector('#orgs-button');
 orgsButton.addEventListener('click', () => {
-    console.log('Calling refresh orgs');
     mainProcess.refreshOrgs();
-    console.log('Done calling refresh orgs');
 });
 
 const dirButton = document.querySelector('#dir-button');
@@ -139,7 +134,7 @@ dirButton.addEventListener('click', () => {
 
 const customCommandsButtonContainer=document.querySelector('#custom-commands-button-container');
 let guiDir=mainProcess.getGUIDir();
-let personalCommandFile=path.join(guiDir, 'commands.js');
+/*let personalCommandFile=path.join(guiDir, 'commands.js');
 if (!fse.existsSync(personalCommandFile)) {
     const ccBtn=document.createElement('button');
     ccBtn.id='orgs-button';
@@ -161,13 +156,12 @@ if (!fse.existsSync(personalCommandFile)) {
     });
     customCommandsButtonContainer.appendChild(ccBtn);
 }
-
+*/1
 ipcRenderer.on('broadcast', (event, message) => {
     ui.setupFooter('footer', mainProcess.getConfig(), message);
 });
 
 ipcRenderer.on('config', (event) => {
-    console.log('Received config event');
     ui.setupFooter('footer', mainProcess.getConfig());
 });
 

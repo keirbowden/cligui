@@ -61,7 +61,6 @@ const addSpinner = exports.addSpinner = (id) => {
 
 const toggleSpinner = exports.toggleSpinner = (ele) => {
     if (null!=ele) {
-        console.log('Toggling spinner');
         ele.classList.toggle('slds-show');
         ele.classList.toggle('slds-hide');
     }

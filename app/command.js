@@ -126,7 +126,6 @@ const getParams = () => {
                 val=param.input.value;
                 if (''!==val){
                     val=val.replace(' ', '\\ ');
-                    console.log('KABKAB - val = ' + val);
                     paramStr+=' ' + param.flag + separator + val;
                 }
                 else {
@@ -137,10 +136,8 @@ const getParams = () => {
 
             case 'checkbox':
                 let ele=document.querySelector('#' + param.name + '-cb:checked')
-                console.log('Ele = ' + ele);
                 if (null!=ele) {
                     const val=ele.value;
-                    console.log('Val = ' + val + ' param nam ' + param.name);
                     if (val==param.name) {
 
                         paramStr+=' ' + param.flag;
@@ -154,7 +151,6 @@ const getParams = () => {
             case 'logfile':
             case 'package':
             case 'packageversion':
-                console.log('Type = ' + param.type);
                 let selectedIndex=param.input.selectedIndex;
                 if (-1!=selectedIndex) {
                     if (param.type=='package') {
@@ -165,7 +161,6 @@ const getParams = () => {
                     }
                 }
                 else {
-                    console.log('Setting disable to true');
                     disable=true;
                 }
                 break;

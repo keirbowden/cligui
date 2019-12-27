@@ -24,7 +24,6 @@ const runSfdxCommand = exports.runSfdxCommand = (command, params) => {
 const runSfdx = exports.runSfdx = (params) => {
     let result;
     try {
-        console.log('Executing command sfdx ' + params);
         let exe='sfdx';
         if (process.platform === "win32") {
             exe='sfdx.cmd';
@@ -33,7 +32,6 @@ const runSfdx = exports.runSfdx = (params) => {
         result=JSON.parse(resultJSON);
     }
     catch (exc) {
-        console.log('Exception ' + exc);
         let stdoutJSON=exc.stdout.toString();
         if ( (stdoutJSON) && (stdoutJSON.length>0) ) {
             let stdout=JSON.parse(stdoutJSON);
@@ -46,7 +44,6 @@ const runSfdx = exports.runSfdx = (params) => {
             let bracePos=errMsg.indexOf('{');
             if (-1!=bracePos) {
                 resultJSON=errMsg.substring(bracePos);
-                console.log('Result = ' + resultJSON);
                 result=JSON.parse(resultJSON);
             }
             else {
@@ -55,8 +52,6 @@ const runSfdx = exports.runSfdx = (params) => {
         }
     }
     
-    console.log('Returning result = ' + JSON.stringify(result));
-
     return result;
 }
 
@@ -242,18 +237,13 @@ const logTestResults = (result) => {
 }
 
 const loadOrgs = exports.loadOrgs = (mainProcess, ele, force) => {
-    console.log('Loading orgs');
     let filename=path.join(mainProcess.getDataDir(), 'orgs.json');
-    console.log('looking for file ' + filename);
-    console.log('Force = ' + force);
     if ( (fse.existsSync(filename)) && (!force) ) {
         const orgsResult = JSON.parse(fse.readFileSync(filename));
-        console.log('Loading file ' + filename);
         orgs=orgsResult.result;
         mainProcess.setOrgs(orgs, false);
     }
     else {
-        console.log('Retrieving orgs');
         const params=['force:org:list', '--json'];
         ui.executeWithSpinner(ele, () => {
             const result=runSfdx(params);
@@ -271,11 +261,9 @@ const loadOrgs = exports.loadOrgs = (mainProcess, ele, force) => {
 
 const getConfig = exports.getConfig = () => {
     let config={};
-    console.log('Getting config settings');
     const params=['force:config:list', '--json'];
 
     const result=runSfdx(params);
-    console.log('Config = ' + JSON.stringify(result));
     if ( (result.status===0) && (result.result.length>0) ) {
         for (let cfgItem of result.result) {
             switch (cfgItem.key) {
@@ -289,7 +277,6 @@ const getConfig = exports.getConfig = () => {
                 ;;
             }
         }
-        console.log('Username = ' + config.username + ', devhub = ' + config.devhubusername);
     }
 
     // open file

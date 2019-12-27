@@ -79,7 +79,6 @@ const refreshOrgs = exports.refreshOrgs = () => {
 }
 
 const refreshConfig = exports.refreshConfig = () => {
-    console.log('In refresh config');
     getConfig();
     for (window of windows) {
         window.webContents.send('config');
@@ -101,7 +100,6 @@ app.on('ready', () => {
         }
     );
     let paramDir=process.argv[2];
-    console.log('paramDir = ' + process.argv[2]);
     if (paramDir!==undefined) {
         changeDirectory(paramDir);
     }
@@ -167,7 +165,6 @@ const broadcastMessage = exports.broadcastMessage = (msg) => {
 }
 
 const setOrgs = exports.setOrgs = (inOrgs, refresh) => {
-    //console.log('Setting orgs to ' + JSON.stringify(inOrgs, null, 4));
     orgs=inOrgs;
     broadcastMessage('Orgs ' + (refresh?'refreshed':'loaded'));
 }

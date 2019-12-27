@@ -131,7 +131,6 @@ const addPackageParam = (param) => {
     let spinEle=document.querySelector('#spinner');
     ui.executeWithSpinner(spinEle, () => {
         const result=sfdxUtils.runSfdxCommand('force:package:list', '-v ' + username);
-        console.log('Result = ' + JSON.stringify(result, null, 4));
         addPackageOptions(result, param, config);
         callback();
     })
@@ -178,12 +177,9 @@ const addPackageVersionParam = (param) => {
  }
  
  const getPackageVersionOptions = (param, username, package, config, callback) => {
-    console.log('At 1');
     let spinEle=document.querySelector('#spinner');
     ui.executeWithSpinner(spinEle, () => {
-        console.log('Username = ' + username + ', package = ' + package);
         const result=sfdxUtils.runSfdxCommand('force:package:version:list', '-v ' + username + ' -p ' + package);
-        console.log('Result = ' + JSON.stringify(result, null, 4));
         addPackageVersionOptions(result, param, config);
         callback();
     })
@@ -370,13 +366,10 @@ const addParams = exports.addParams = (id, command, orgs) => {
 }
 
 const clearExcludes = (param, command) => {
-    logging.log('Checking whether I should exclude - type = ' + param.type);
     let clear=false;
     switch (param.type) {
         case 'checkbox':
             const val=param.input.value;
-            logging.log('val = ' + val);
-            logging.log('Val = ' + val + ' param nam ' + param.name);
             if (val==param.name) {
                 clear=true;;
             }        
@@ -408,7 +401,6 @@ const clearExcludes = (param, command) => {
                     ;;
             
                     default:
-                        logging.log('Input = ' + cand.input);
                         if (null!=cand.input) {
                             if (cand.default) {
                                 cand.input.value=param.default;

@@ -37,8 +37,6 @@ const getUsername = (val) => {
         username=val;
     }
 
-    console.log('username = ' + username);
-
     return username;
 }
 
