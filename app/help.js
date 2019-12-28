@@ -1,6 +1,7 @@
 const { ipcRenderer, remote } = require('electron');
 const mainProcess = remote.require('./main.js');
 const child_process = require('child_process');
+const sfdxUtils = require('./shared/sfdxUtils');
 
 ipcRenderer.on('params', (event, params) => {
     const content=mainProcess.commandsByName.get(params.name).overview;
@@ -9,7 +10,7 @@ ipcRenderer.on('params', (event, params) => {
 
     if (params.command!='gui') {
         setTimeout( () => {
-            let help=''+child_process.execFileSync('sfdx', [params.command, '-h']);
+            let help=''+child_process.execFileSync(sfdxUtils.getSfdxExe(), [params.command, '-h']);
             addHelpContent(help);
         }, 0);
     }

@@ -65,11 +65,12 @@ const changeDirectory = exports.changeDirectory = (dir) => {
 }
 
 let setupWindow;
+console.log('Path = ' + getDataDir());
 
 const refreshOrgs = exports.refreshOrgs = () => {
     broadcastMessage('Refreshing orgs');
     setupWindow=new BrowserWindow({
-        show: false,
+        show: true,
         webPreferences: {
             nodeIntegration: true
           }

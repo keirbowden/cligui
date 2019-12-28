@@ -1,7 +1,7 @@
 {
   "name": "sfdxgui",
   "version": "1.0.0",
-  "description": "Electron front end on SFDX cli",
+  "description": "Electron front end for the Salesforce CLI",
   "main": "app/main.js",
   "scripts": {
     "start": "electron .",

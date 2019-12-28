@@ -21,14 +21,20 @@ const runSfdxCommand = exports.runSfdxCommand = (command, params) => {
     return runSfdx(paramArr);
 
 }
+
+const getSfdxExe = exports.getSfdxExe = () => {
+    let exe='sfdx';
+    if (process.platform === "win32") {
+        exe='sfdx.cmd';
+    }
+
+    return exe;
+}
+
 const runSfdx = exports.runSfdx = (params) => {
     let result;
     try {
-        let exe='sfdx';
-        if (process.platform === "win32") {
-            exe='sfdx.cmd';
-        }
-        const resultJSON=child_process.execFileSync(exe, params, {stdio: ['pipe', 'pipe', 'pipe']});
+        const resultJSON=child_process.execFileSync(getSfdxExe(), params, {stdio: ['pipe', 'pipe', 'pipe']});
         result=JSON.parse(resultJSON);
     }
     catch (exc) {
