@@ -12,7 +12,7 @@ const groups = exports.groups =
                     completeMessage: 'Org opened',
                     command: 'sfdx',
                     subcommand: 'force:org:open',
-                    instructions: 'TODO',
+                    instructions: 'Choose the org to open from the datalist and cick the \'Open\' button',
                     executelabel: 'Open',
                     refreshOrgs: false,
                     type: 'brand',
@@ -22,7 +22,7 @@ const groups = exports.groups =
                         status: 'status',
                         result: 'result'
                     },
-                    overview : 'TODO',
+                    overview : 'Opens an org you have previously authenticated against without requiring you to re-enter credentials. Note that this has security implications so you should always logout of an org containing real data.',
                     params : [
                         {
                             name : 'org',
@@ -37,11 +37,11 @@ const groups = exports.groups =
                     name: 'login',
                     label: 'Login to Org',
                     icon: 'adduser',
-                    startMessage: 'Logginng in to org',
-                    completeMessage: 'Login complet3',
+                    startMessage: 'Logging in to org',
+                    completeMessage: 'Login complete',
                     command: 'sfdx',
                     subcommand: 'force:auth:web:login',
-                    instructions: 'TODO',
+                    instructions: 'Choose an alias for the org if required and pick the endpoint to login to. Check the appropriate box to set this as the default user or default dev hub user, then click the Login button. Note that the default user/dev hub user will only be set for the current directory. Used the dedicated commands to set these details globally. Note also that this will refresh the orgs which will take a few moments.',
                     executelabel: 'Login',
                     type: 'success',
                     refreshOrgs: true,
@@ -51,7 +51,7 @@ const groups = exports.groups =
                         status: 'status',
                         result: 'result'
                     },
-                    overview : 'TODO',
+                    overview : 'Login to an org and cache the details so that it can be opened in future without needing credentials. For security reasons, always logout of any org that contains real data.',
                     params : [
                         {
                             name : 'alias',
@@ -90,7 +90,7 @@ const groups = exports.groups =
                     completeMessage: 'Logged out of org',
                     command: 'sfdx',
                     subcommand: 'force:auth:logout',
-                    instructions: 'TODO',
+                    instructions: 'Choose the org you wish to logout of from the datalist and click the Logout button. Note that this will refresh the orgs which will take a few moments.',
                     executelabel: 'Logout',
                     type: 'destructive',
                     refreshOrgs: true,
@@ -120,7 +120,7 @@ const groups = exports.groups =
                     completeMessage: 'Default username set',
                     command: 'sfdx',
                     subcommand: 'force:config:set',
-                    instructions: 'TODO',
+                    instructions: 'Select the username from the datalist and check the Global ? box if you wish to set this as the default username for all of your projects, then click the Set button. Note that you must have already authenticated as the user you wish to set as the default.',
                     executelabel: 'Set',
                     refreshConfig: true,
                     refreshOrgs: false,
@@ -130,7 +130,7 @@ const groups = exports.groups =
                         status: 'status',
                         result: 'result'
                     },
-                    overview : 'TODO',
+                    overview : 'Set the default user for the project in the current chosen directory or globally for all projects.',
                     params : [
                         {
                             name : 'username',
@@ -156,10 +156,10 @@ const groups = exports.groups =
                     label: 'Default Dev Hub',
                     icon: 'strategy',
                     startMessage: 'Setting default dev hub',
-                    completeMessage: 'Defaul dev hub set',
+                    completeMessage: 'Default dev hub set',
                     command: 'sfdx',
                     subcommand: 'force:config:set',
-                    instructions: 'TODO',
+                    instructions: 'Select the username from the datalist and check the Global ? box if you wish to set this as the default dev hub user for all of your projects, then click the Set button. Note that you must have already authenticated as the user you wish to set as the default dev hub.',
                     executelabel: 'Set',
                     refreshConfig: true,
                     refreshOrgs: false,
@@ -169,7 +169,7 @@ const groups = exports.groups =
                         status: 'status',
                         result: 'result'
                     },
-                    overview : 'TODO',
+                    overview : 'Set the default dev hub user for the project in the current chosen directory or globally for all projects.',
                     params : [
                         {
                             name : 'username',
@@ -205,7 +205,7 @@ const groups = exports.groups =
                     command: 'sfdx',
                     subcommand: 'force:org:create',
                     openorg: 'user',
-                    instructions: 'TODO',
+                    instructions: 'Choose the dev hub to create the scratch org against - if you have set the default either locally or globally then this will be pre-selected for you. Select the scratch org definition file and then define the alias. Chooe how long you want the org to live for, and check the box to make this the default user if required. Check the \'Open Org\' box if you want to open the scratch org once it has been created. Finally, click the \'Create\'  button to create the scratch org. Note that this will refresh the orgs which will take a few moments.',
                     executelabel: 'Create',
                     type: 'success',
                     refreshOrgs: true,
@@ -215,9 +215,7 @@ const groups = exports.groups =
                         status: 'status',
                         result: 'result'
                     },
-                    overview : 'Scratch orgs are short lived orgs for developing features. As they expire after a maximum of ' + 
-                            '30 days, it is extremely important to ensure that your local codebase contains all changes ' + 
-                            'made in the org - once it expires, you CANNOT access it',
+                    overview : 'Scratch orgs are short lived orgs for developing features. As they expire after a maximum of 30 days, it is extremely important to ensure that your local codebase contains all changes made in the org - once it expires, you CANNOT access it',
                     params : [
                         {
                             name : 'devhub',
@@ -269,7 +267,7 @@ const groups = exports.groups =
                     completeMessage: 'Scratch org deleted',
                     command: 'sfdx',
                     subcommand: 'force:org:delete',
-                    instructions: 'TODO',
+                    instructions: 'Choose the org that you wish to delete from the datalist and click the \'Delete\' button. Note that this will refresh the orgs which will take a few moments.',
                     executelabel: 'Delete',
                     type: 'destructive',
                     refreshOrgs: true,
@@ -279,7 +277,7 @@ const groups = exports.groups =
                         status: 'status',
                         result: 'result'
                     },
-                    overview : 'TODO',
+                    overview : 'Deletes a scratch org before its scheduled expiry date. Use this command if you have finished with an org. Make sure that you have retrieved everything you need from the org, as this action cannot be undone',
                     additionalflags: '-p',
                     params : [
                         {
