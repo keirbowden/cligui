@@ -1,7 +1,9 @@
 # Salesforce CLI GUI
 Electron application wrapping a GUI around the Salesforce CLI commands.
 
-# Installing
+# Installation
+
+The CLI GUI has been installed and tested on MacOS Catalina (10.15) and Windows 10.
 
 1. Clone the repository
 1. Navigate to the cloned directory
