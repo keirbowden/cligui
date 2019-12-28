@@ -5,35 +5,6 @@ const groups = exports.groups =
             label: 'Auth',
             commands : [
                 {
-                    name: 'openorg',
-                    label: 'Open Org',
-                    icon: 'open',
-                    startMessage: 'Opening org',
-                    completeMessage: 'Org opened',
-                    command: 'sfdx',
-                    subcommand: 'force:org:open',
-                    instructions: 'Choose the org to open from the datalist and cick the \'Open\' button',
-                    executelabel: 'Open',
-                    refreshOrgs: false,
-                    type: 'brand',
-                    json: {
-                        supported: true,
-                        polling: false,
-                        status: 'status',
-                        result: 'result'
-                    },
-                    overview : 'Opens an org you have previously authenticated against without requiring you to re-enter credentials. Note that this has security implications so you should always logout of an org containing real data.',
-                    params : [
-                        {
-                            name : 'org',
-                            label: 'Choose Org',
-                            type: 'org',
-                            variant: 'all',
-                            flag: '-u'
-                        }
-                    ]        
-                },
-                {
                     name: 'login',
                     label: 'Login to Org',
                     icon: 'adduser',
@@ -100,7 +71,7 @@ const groups = exports.groups =
                         status: 'status',
                         result: 'result'
                     },
-                    overview : 'TODO',
+                    overview : 'Logout of an org you have previously authenticated against, removing all cached information that would allow the org to be opened without requiring credentials.',
                     additionalflags: '-p',
                     params : [
                         {
@@ -189,7 +160,36 @@ const groups = exports.groups =
                             flag: '-g'
                         }
                     ]
-                }
+                },
+                {
+                    name: 'openorg',
+                    label: 'Open Org',
+                    icon: 'open',
+                    startMessage: 'Opening org',
+                    completeMessage: 'Org opened',
+                    command: 'sfdx',
+                    subcommand: 'force:org:open',
+                    instructions: 'Choose the org to open from the datalist and cick the \'Open\' button',
+                    executelabel: 'Open',
+                    refreshOrgs: false,
+                    type: 'brand',
+                    json: {
+                        supported: true,
+                        polling: false,
+                        status: 'status',
+                        result: 'result'
+                    },
+                    overview : 'Opens an org you have previously authenticated against without requiring you to re-enter credentials. Note that this has security implications so you should always logout of an org containing real data.',
+                    params : [
+                        {
+                            name : 'org',
+                            label: 'Choose Org',
+                            type: 'org',
+                            variant: 'all',
+                            flag: '-u'
+                        }
+                    ]        
+                },
             ]
         },
         {
