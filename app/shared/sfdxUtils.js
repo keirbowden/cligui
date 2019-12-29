@@ -254,8 +254,14 @@ const loadOrgs = exports.loadOrgs = (mainProcess, ele, force) => {
         ui.executeWithSpinner(ele, () => {
             const result=runSfdx(params);
             if (result.status===0)  {
-                fse.writeFileSync(filename, JSON.stringify(result));
                 orgs=result.result;
+                for (let org of orgs.nonScratchOrgs) {
+                    delete org.accessToken;
+                }
+                for (let org of orgs.scratchOrgs) {
+                    delete org.accessToken;
+                }
+                fse.writeFileSync(filename, JSON.stringify(result));
                 mainProcess.setOrgs(orgs, true);
             }    
             else {
