@@ -86,6 +86,7 @@ const getParams = () => {
                 let username;
                 val=param.input.value;
                 if ( (''!==val) && (null!=(username=orgUtils.extractValidUsername(orgs, val))) ) {
+                    username=username.replace(/ /g, '\\ ');
                     paramStr+=' ' + param.flag + separator + username;
                 }
                 else if ( (''===val) && (param.allowEmpty) ) {
