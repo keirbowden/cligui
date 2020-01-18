@@ -34,12 +34,14 @@ const getSfdxExe = exports.getSfdxExe = () => {
 const runSfdx = exports.runSfdx = (params) => {
     let result;
     try {
-        const resultJSON=child_process.execFileSync(getSfdxExe(), params, {stdio: ['pipe', 'pipe', 'pipe']});
+        const resultJSON=child_process.execFileSync(getSfdxExe(), params, {stdio: ['pipe', 'pipe', 'pipe'], maxBuffer: 20 * 1024 * 1024 });
         result=JSON.parse(resultJSON);
     }
     catch (exc) {
+        console.log('Caught exception ' + exc);
         let stdoutJSON=exc.stdout.toString();
         if ( (stdoutJSON) && (stdoutJSON.length>0) ) {
+            console.log('stdoutJSON = ' + stdoutJSON);
             let stdout=JSON.parse(stdoutJSON);
             if ( (stdout.status) && (stdout.status!==0) ) {
                 result=stdout;            
