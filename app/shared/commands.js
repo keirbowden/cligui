@@ -291,4 +291,77 @@ const groups = exports.groups =
                 },
             ]
         }
+        ,
+        {
+            name : 'debug',
+            label: 'Debugging',
+            commands : [
+                {
+                    name: 'listlogs',
+                    label: 'List Logs',
+                    icon: 'file',
+                    startMessage: 'Retrieving log file list',
+                    completeMessage: 'Log file list retrieved',
+                    command: 'sfdx',
+                    subcommand: 'force:apex:log:list',
+                    instructions: 'Choose the org that you wish to extract the log file details for and click the \'List\' button',
+                    executelabel: 'List',
+                    refreshConfig: false,
+                    refreshOrgs: false,
+                    json: true,
+                    type: 'brand',
+                    resultprocessor: 'loglist',
+                    polling: {
+                        supported: false
+                    },
+                    overview : 'Lists all the available log files for a specific org.',
+                    params : [
+                        {
+                            name : 'username',
+                            label: 'Username',
+                            type: 'org',
+                            default: false,
+                            variant: 'all',
+                            flag: '-u'
+                        }
+                    ]        
+                },
+                {
+                    name: 'getlog',
+                    label: 'Get Log File',
+                    icon: 'file',
+                    startMessage: 'Rerieving log file',
+                    completeMessage: 'Log file retrieved',
+                    command: 'sfdx',
+                    subcommand: 'force:apex:log:get',
+                    instructions: 'Choose the org that you wish to extract the log file from, then click the \'Get log files\' button to retrieve the available log files. Then choose a file and click the \'Get\' button to retrieve the contents and display in the output modal.',
+                    executelabel: 'Get',
+                    refreshConfig: false,
+                    refreshOrgs: false,
+                    json: true,
+                    type: 'success',
+                    resultprocessor: 'logfile',
+                    polling: {
+                        supported: false
+                    },
+                    overview : 'Displays the contents of a selected debug log file from a specific Salesforce instance.',
+                    params : [
+                        {
+                            name : 'username',
+                            label: 'Username',
+                            type: 'org',
+                            default: false,
+                            variant: 'all',
+                            flag: '-u'
+                        },
+                        {
+                            name : 'logfile',
+                            label: 'Logfile',
+                            type: 'logfile',
+                            flag: '-i'
+                        }
+                    ]        
+                }
+            ]
+        }
     ];
