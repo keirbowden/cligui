@@ -121,7 +121,7 @@ const getParams = () => {
                     if (param.quote)
                     {
                         if (process.platform === "win32") {
-                            quote='\/\'';
+                            quote='\'';
                         }
                         else {
                             quote='\\\'';
@@ -245,7 +245,9 @@ const completed = (success, result) => {
                         if (param.name===command.openFileParam)
                         {
                             const filename=param.input.value;
-                            child_process. execSync('open ' + filename);
+                            let openCmd=(process.platform === "win32"?'start':'open');
+                            if (process)
+                            child_process. execSync(openCmd + ' ' + filename);
                         }
                     }
                 }
