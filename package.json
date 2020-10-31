@@ -1,11 +1,11 @@
 {
   "name": "sfdxgui",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Electron front end for the Salesforce CLI",
   "main": "app/main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-packager .",
+    "build": "electron-packager . --icon=./cmd-terminal.icns",
     "forcebuild": "electron-packager --overwrite .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -13,7 +13,7 @@
   "license": "MIT",
   "dependencies": {
     "electron": "^9.1.0",
-    "electron-packager": "^14.0.6",
+    "electron-packager": "^14.2.1",
     "fix-path": "^2.1.0",
     "fs-extra": "^8.1.0"
   }
