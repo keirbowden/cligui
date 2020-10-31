@@ -42,7 +42,6 @@ const runSfdx = exports.runSfdx = (params) => {
             {
                 command+=' ' + param;
             }
-            console.log('Executing command ' + command);
             resultJSON=child_process.execSync(command, {stdio: ['pipe', 'pipe', 'pipe'], maxBuffer: 20 * 1024 * 1024});
         }
         else {
@@ -50,7 +49,6 @@ const runSfdx = exports.runSfdx = (params) => {
         }
 
         result=JSON.parse(resultJSON);
-        console.log('Result = ' + resultJSON);
     }
     catch (exc) {
         console.log('Caught exception ' + exc);

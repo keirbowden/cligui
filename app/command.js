@@ -201,9 +201,6 @@ const getParams = () => {
 
                     paramStr+=' ' + param.flag + separator + quote + vals.substring(2) + quote;
                 }
-                else {
-                    disable=true;
-                }
                 break;
             ;;
         }
@@ -234,7 +231,8 @@ const completed = (success, result) => {
             mainProcess.refreshConfig();
         }
 
-        if ('user'==command.openFile) {
+        if ( ('user'==command.openFile) && 
+             (result.result!='No rule violations found.') ) {
             const openFile=document.querySelector('#open-file-cb:checked');
             if (null!=openFile) {
                 const val=openFile.value;
