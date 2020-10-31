@@ -120,7 +120,12 @@ const getParams = () => {
                 if (''!==val) {
                     if (param.quote)
                     {
-                        quote='\\\'';
+                        if (process.platform === "win32") {
+                            quote='\/\'';
+                        }
+                        else {
+                            quote='\\\'';
+                        }
                     }
                     val=val.replace(/ /g, '\\ ');
                     paramStr+=' ' + param.flag + separator + quote + val + quote;
