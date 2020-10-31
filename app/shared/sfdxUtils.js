@@ -7,7 +7,7 @@ const path=require('path');
 
 const runSfdxCommand = exports.runSfdxCommand = (command, params) => {
     let paramArr=[];
-    if (''!=params) {
+    if ( (params) && (''!=params) ) {
         if (params.charAt(0)==' ') {
             params=params.substring(1);
         }
@@ -34,8 +34,23 @@ const getSfdxExe = exports.getSfdxExe = () => {
 const runSfdx = exports.runSfdx = (params) => {
     let result;
     try {
-        const resultJSON=child_process.execFileSync(getSfdxExe(), params, {stdio: ['pipe', 'pipe', 'pipe'], maxBuffer: 20 * 1024 * 1024 });
+        let resultJSON;
+        if (-1!=params[0].indexOf('scanner:run'))
+        {
+            let command=getSfdxExe();
+            for (let param of params)
+            {
+                command+=' ' + param;
+            }
+            console.log('Executing command ' + command);
+            resultJSON=child_process.execSync(command, {stdio: ['pipe', 'pipe', 'pipe'], maxBuffer: 20 * 1024 * 1024});
+        }
+        else {
+            resultJSON=child_process.execFileSync(getSfdxExe(), params, {stdio: ['pipe', 'pipe', 'pipe'], maxBuffer: 20 * 1024 * 1024});
+        }
+
         result=JSON.parse(resultJSON);
+        console.log('Result = ' + resultJSON);
     }
     catch (exc) {
         console.log('Caught exception ' + exc);
@@ -87,6 +102,14 @@ const executeSfdxWithLogging = exports.executeSfdxWithLogging = (command, params
                     ;;
                     case 'logfile':
                         logLogFileResult(result.result);
+                        break;
+                    ;;
+                    case 'scannerrules':
+                        logScannerRulesResult(result.result);
+                        break;
+                    ;;
+                    case 'scannerrun':
+                        logging.log(result.result);
                         break;
                     ;;
                 }
@@ -243,6 +266,23 @@ const logTestResults = (result) => {
         }
     }
 }
+
+const logScannerRulesResult = (result) => {
+    for (let rule of getRuleList(result)) {
+        logging.log(rule);
+    }
+}
+
+const getRuleList = (result) => {
+    let ruleEntries=[];
+    let idx=0;
+    for (let rule of result) {
+        ruleEntries.push(++idx + ' : ' + rule.name + ' - ' + rule.categories + ', ' + rule.languages + ', ' + rule.engine);
+    }
+
+    return ruleEntries;
+}
+
 
 const loadOrgs = exports.loadOrgs = (mainProcess, ele, force) => {
     let filename=path.join(mainProcess.getDataDir(), 'orgs.json');

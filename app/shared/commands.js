@@ -363,5 +363,96 @@ const groups = exports.groups =
                     ]        
                 }
             ]
+        },
+        {
+            name : 'scanner',
+            label: 'Scanner',
+            commands : [
+                {
+                    name: 'scannerlistrules',
+                    label: 'List Rules',
+                    icon: 'list',
+                    startMessage: 'Listing rules',
+                    completeMessage: 'Rules listed',
+                    command: 'sfdx',
+                    subcommand: 'scanner:rule:list',
+                    instructions: 'TODO',
+                    executelabel: 'List Rules',
+                    refreshOrgs: false,
+                    json: {
+                        supported: true,
+                        polling: false,
+                        status: 'status',
+                        result: 'result'
+                    },
+                    resultprocessor: 'scannerrules',
+                    overview : 'TODO',
+                    params : [
+                        {
+                            name : 'categories',
+                            label: 'Categories',
+                            type: 'text',
+                            flag: '-c'
+                        },
+                        {
+                            name : 'language',
+                            label: 'Language',
+                            type: 'text',
+                            flag: '-l'
+                        }
+                    ]        
+                },
+                {
+                    name: 'scannerscan',
+                    label: 'Scan Files',
+                    icon: 'opened_folder',
+                    startMessage: 'Scanning files',
+                    completeMessage: 'Files scanned',
+                    command: 'sfdx',
+                    subcommand: 'scanner:run',
+                    instructions: 'TODO',
+                    executelabel: 'Scan Files',
+                    refreshOrgs: false,
+                    openFile: 'user',
+                    openFileParam: 'outfile',
+                    json: {
+                        supported: true,
+                        polling: false,
+                        status: 'status',
+                        result: 'result'
+                    },
+                    resultprocessor: 'scannerrun',
+                    overview : 'TODO',
+                    params : [
+                        {
+                            name : 'categories',
+                            label: 'Categories',
+                            type: 'category',
+                            flag: '-c'
+                        },
+                        {
+                            name : 'target',
+                            label: 'Target',
+                            quote: true,
+                            type: 'text',
+                            flag: '-t'
+                        },
+                        {
+                            name : 'format',
+                            label: 'Format',
+                            type: 'select',
+                            default: 'html',
+                            values: ['csv', 'json', 'junit', 'table', 'xml', 'html'],
+                            flag: '-f'
+                        },
+                        {
+                            name : 'outfile',
+                            label: 'Output File',
+                            type: 'text',
+                            flag: '-o'
+                        }
+                    ]        
+                }
+            ]
         }
     ];

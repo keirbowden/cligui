@@ -1,3 +1,4 @@
+const path = require('path');
 const orgUtils = require('./orgUtils.js');
 const sfdxUtils = require('./sfdxUtils.js');
 const ui = require('./ui.js');
@@ -321,6 +322,12 @@ const addParams = exports.addParams = (id, command, orgs) => {
                 paramsEle.appendChild(addFileParam(param));
                 break;
             ;;
+            
+            case 'dir':
+                paramsEle.appendChild(addFileParam(param));
+                break;
+            ;;
+
             case 'checkbox':
                 paramsEle.appendChild(addCheckboxParam(param));
                 break;
@@ -350,6 +357,12 @@ const addParams = exports.addParams = (id, command, orgs) => {
                 paramsEle.appendChild(addPackageVersionParam(param));
                 break;
             ;;   
+
+            case 'category':
+                paramsEle.appendChild(addCategoryParam(param));
+                break;
+            ;;   
+
         }    
     }
 
@@ -360,6 +373,14 @@ const addParams = exports.addParams = (id, command, orgs) => {
                          value: 'open-org'};
 
         paramsEle.appendChild(addCheckboxParam(openOrgParam));
+    }
+
+    if ('user'==command.openFile) {
+        let openFileParam={name: 'open-file',
+                         label: 'Open File?',
+                         value: 'open-file'};
+
+        paramsEle.appendChild(addCheckboxParam(openFileParam));
     }
 
     return paramsEle;
@@ -379,6 +400,14 @@ const clearExcludes = (param, command) => {
         case 'select':
             let selectedIndex=param.input.selectedIndex;
             if (-1!=selectedIndex) {
+                clear=true;
+            }
+            break;
+        ;;
+
+        case 'selectmulti':
+            let selectedOptions=param.input.selectedOptions;
+            if (0!=selectedOptions.length) {
                 clear=true;
             }
             break;
@@ -415,6 +444,62 @@ const clearExcludes = (param, command) => {
         }
     }
 }
+
+const addCategoryParam = (param) => {
+    const formEles=getFormElements(param);
+
+    const butEle=document.createElement('button');
+    butEle.classList.add('slds-top-m_small', 'slds-button', 'slds-button_outline-brand', 'slds-m-bottom_small');
+    butEle.id=param.name+'-button';
+    butEle.innerHTML='Get Categories';
+    formEles.contEle.appendChild(butEle);
+
+    const selContEle=document.createElement('div');
+    selContEle.classList.add('slds-select_container');
+    formEles.contEle.appendChild(selContEle);
+
+    const selEle=document.createElement('select');
+    selEle.classList.add('slds-select');
+    selEle.id=param.name+'-select';
+    selEle.multiple=true;
+    selEle.size=7;
+    selContEle.appendChild(selEle);
+ 
+    return formEles.formEle;
+ }
+ 
+ const getCategoryOptions = (param, config, callback) => {
+    let spinEle=document.querySelector('#spinner');
+    ui.executeWithSpinner(spinEle, () => {
+        const result=sfdxUtils.runSfdxCommand('scanner:rule:list');
+        addCategoryOptions(result, param, config);
+        callback();
+    })
+}
+
+const addCategoryOptions=(result, param, config) => {
+    const select=document.querySelector('#' + param.name + '-select');
+    while (select.options.length > 0) {                
+        select.remove(0);
+    }      
+    param.values=[];
+    let categories=[];
+    for (let idx=result.result.length-1; idx>=0; idx--) {
+        let rule=result.result[idx];
+        for (let category of rule.categories)
+        {
+            if (!categories.includes(category)) {
+                option=document.createElement('option');
+                option.value=category;
+                option.label=category;
+                select.appendChild(option);    
+                param.values.push(category);
+                categories.push(category);
+            }            
+        }
+    }
+}
+
 
 const addHandlers = exports.addHandlers = (command, callback, config, mainProcess, currentWindow) => {
     // add handlers for inputs
@@ -472,6 +557,21 @@ const addHandlers = exports.addHandlers = (command, callback, config, mainProces
                 });
                 break;
             ;;
+            case 'dir' :
+                param.button=document.querySelector('#' + param.name + '-button');
+                param.button.addEventListener('click', () => {
+                    let chosen=mainProcess.getDirectoryFromUser(currentWindow, process.cwd());
+                    if (''!=chosen) {
+                        if (param.relative) {
+                            chosen = path.relative(process.cwd(), chosen);
+                        }
+                        param.chosenFile=chosen;
+                    }
+                    param.input.value=chosen;;
+                    callback();
+                });
+                break;
+            ;;
             case 'org' :
                 if (param.default) {
                     if ( ('hub'==param.variant) && (config.devhubusername) ) {
@@ -505,6 +605,18 @@ const addHandlers = exports.addHandlers = (command, callback, config, mainProces
                 }
                 break;
             ;;
+            case 'category' :
+                param.button=document.querySelector('#' + param.name + '-button');
+                param.button.addEventListener('click', () => {
+                    getCategoryOptions(param, config, callback);                    
+                });
+                param.input=document.querySelector('#' + param.name + '-select');
+                param.input.addEventListener('change', () => {
+                    callback();
+                });
+                break;
+            ;;
+            
         }
     }
 }

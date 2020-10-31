@@ -1,3 +1,4 @@
+const child_process = require('child_process');
 const { remote, ipcRenderer } = require('electron');
 const mainProcess = remote.require('./main.js');
 const sfdxUtils = require('./shared/sfdxUtils.js');
@@ -117,6 +118,10 @@ const getParams = () => {
                 val=param.input.value;
                 let quote='';
                 if (''!==val) {
+                    if (param.quote)
+                    {
+                        quote='\\\'';
+                    }
                     val=val.replace(/ /g, '\\ ');
                     paramStr+=' ' + param.flag + separator + quote + val + quote;
                 }
@@ -124,6 +129,18 @@ const getParams = () => {
             ;;
 
             case 'file':
+                val=param.input.value;
+                if (''!==val){
+                    val=val.replace(' ', '\\ ');
+                    paramStr+=' ' + param.flag + separator + val;
+                }
+                else {
+                    disable=true;
+                }
+                break;
+            ;;
+
+            case 'dir':
                 val=param.input.value;
                 if (''!==val){
                     val=val.replace(' ', '\\ ');
@@ -166,6 +183,24 @@ const getParams = () => {
                 }
                 break;
             ;;
+            case 'category':
+                let selectedOptions=param.input.selectedOptions;
+                if (selectedOptions.length>0)
+                {
+                    let vals='';
+                    for (let selOpt of selectedOptions)
+                    {
+                        vals+=', ' + selOpt.value;
+                    }
+                    let quote='"';
+
+                    paramStr+=' ' + param.flag + separator + quote + vals.substring(2) + quote;
+                }
+                else {
+                    disable=true;
+                }
+                break;
+            ;;
         }
     }
 
@@ -193,6 +228,25 @@ const completed = (success, result) => {
             logging.log('Refreshing config');
             mainProcess.refreshConfig();
         }
+
+        if ('user'==command.openFile) {
+            const openFile=document.querySelector('#open-file-cb:checked');
+            if (null!=openFile) {
+                const val=openFile.value;
+                if (val=='open-file')
+                {
+                    for (let param of command.params)
+                    {
+                        if (param.name===command.openFileParam)
+                        {
+                            const filename=param.input.value;
+                            child_process. execSync('open ' + filename);
+                        }
+                    }
+                }
+            }
+        }
+    
     }
 }
 
