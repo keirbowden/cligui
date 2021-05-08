@@ -454,5 +454,279 @@ const groups = exports.groups =
                     ]        
                 }
             ]
+        },
+        {
+            name : 'pkg',
+            label: 'Packaging',
+            commands : [
+                {
+                    name: 'pkgcreatever',
+                    label: 'Create Version',
+                    icon: 'open',
+                    startMessage: 'Creating version',
+                    completeMessage: 'Version created',
+                    command: 'sfdx',
+                    subcommand: 'force:package:version:create',
+                    instructions: 'TODO',
+                    executelabel: 'Create Version',
+                    refreshOrgs: false,
+                    json: {
+                        supported: true,
+                        polling: false,
+                        status: 'status',
+                        result: 'result'
+                    },
+                    overview : 'TODO',
+                    params : [
+                        {
+                            name : 'devhub',
+                            label: 'Dev Hub',
+                            type: 'org',
+                            default: true,
+                            variant: 'hub',
+                            flag: '-v'
+                        },
+                        {
+                            name : 'package',
+                            label: 'Package',
+                            type: 'package',
+                            flag: '-p'
+                        },
+                        {
+                            name : 'key',
+                            label: 'Key',
+                            type: 'text',
+                            flag: '-k',
+                            excludes: 'bypasskey'
+                        },
+                        {
+                            name : 'coverage',
+                            label: 'Run Tests',
+                            type: 'checkbox',
+                            flag: '-c'
+                        },
+                        {
+                            name : 'description',
+                            label: 'Version Description',
+                            type: 'text',
+                            quote: true,
+                            flag: '-e'
+                        },
+                        {
+                            name : 'definition',
+                            label: 'Definition File',
+                            type: 'file',
+                            flag: '-f'
+                        },
+                        {
+                            name : 'bypasskey',
+                            label: 'Bypass Key',
+                            type: 'checkbox',
+                            flag: '-x',
+                            excludes: 'key'
+                        },
+                        {
+                            name: 'wait',
+                            label: 'Wait (mins)',
+                            type: 'number', 
+                            min: 0,
+                            max: 60,
+                            flag: '-w'
+                        }
+                    ]        
+                },
+                {
+                    name: 'pkgpromotever',
+                    label: 'Promote Version',
+                    icon: 'open',
+                    startMessage: 'Promoting version',
+                    completeMessage: 'Version promoted',
+                    command: 'sfdx',
+                    subcommand: 'force:package:version:promote',
+                    instructions: 'TODO',
+                    executelabel: 'Promote Version',
+                    refreshOrgs: false,
+                    json: {
+                        supported: true,
+                        polling: false,
+                        status: 'status',
+                        result: 'result'
+                    },
+                    overview : 'TODO',
+                    additionalflags : '-n',
+                    params : [
+                        {
+                            name : 'devhub',
+                            label: 'Dev Hub',
+                            type: 'org',
+                            default: true,
+                            variant: 'hub',
+                            flag: '-v'
+                        },
+                        {
+                            name : 'package',
+                            label: 'Package',
+                            type: 'package',
+                            flag: '-p',
+                            internal: true
+                        },
+                        {
+                            name : 'version',
+                            label: 'Version',
+                            type: 'packageversion',
+                            flag: '-p'
+                        }
+                    ]        
+                },
+                {
+                    name: 'pkgcreate',
+                    label: 'Create Package',
+                    icon: 'open',
+                    startMessage: 'Creating package',
+                    completeMessage: 'Package created',
+                    command: 'sfdx',
+                    subcommand: 'force:package:create',
+                    instructions: 'TODO',
+                    executelabel: 'Create Package',
+                    refreshOrgs: false,
+                    json: {
+                        supported: true,
+                        polling: false,
+                        status: 'status',
+                        result: 'result'
+                    },
+                    overview : 'TODO',
+                    params : [
+                        {
+                            name : 'devhub',
+                            label: 'Dev Hub',
+                            type: 'org',
+                            default: true,
+                            variant: 'hub',
+                            flag: '-v'
+                        },
+                        {
+                            name : 'name',
+                            label: 'Package Name',
+                            type: 'text',
+                            flag: '-n',
+                        },
+                        {
+                            name : 'description',
+                            label: 'Description',
+                            type: 'text',
+                            flag: '-d'
+                        },
+                        {
+                            name : 'type',
+                            label: 'Package Type',
+                            type: 'select',
+                            values: ['Managed','Unlocked'],
+                            flag: '-t'
+                        },
+                        {
+                            name: 'path',
+                            label: 'Path',
+                            type: 'dir',
+                            relative: true,
+                            flag: '-r'
+                        },
+                        {
+                            name : 'orgdependent',
+                            label: 'Org Dependent',
+                            type: 'checkbox',
+                            flag: '--orgdependent'
+                        }
+                    ]        
+                },
+                {
+                    name: 'pkglist',
+                    label: 'List Packages',
+                    icon: 'open',
+                    startMessage: 'Retrieving package list',
+                    completeMessage: 'Package list retrieved',
+                    command: 'sfdx',
+                    subcommand: 'force:package:list',
+                    instructions: 'TODO',
+                    executelabel: 'List Packages',
+                    resultprocessor: 'packagelist',
+                    refreshOrgs: false,
+                    json: {
+                        supported: true,
+                        polling: false,
+                        status: 'status',
+                        result: 'result'
+                    },
+                    overview : 'TODO',
+                    params : [
+                        {
+                            name : 'devhub',
+                            label: 'Dev Hub',
+                            type: 'org',
+                            default: true,
+                            variant: 'hub',
+                            flag: '-v'
+                        }
+                    ]        
+                },
+                {
+                    name: 'pkgverlist',
+                    label: 'List Package Versions',
+                    icon: 'open',
+                    startMessage: 'Retrieving package versions',
+                    completeMessage: 'Package versions retrieved',
+                    command: 'sfdx',
+                    subcommand: 'force:package:version:list',
+                    instructions: 'TODO',
+                    executelabel: 'List Package Versions',
+                    resultprocessor: 'packageversionlist',
+                    refreshOrgs: false,
+                    json: {
+                        supported: true,
+                        polling: false,
+                        status: 'status',
+                        result: 'result'
+                    },
+                    overview : 'TODO',
+                    params : [
+                        {
+                            name : 'devhub',
+                            label: 'Dev Hub',
+                            type: 'org',
+                            default: true,
+                            variant: 'hub',
+                            flag: '-v'
+                        },
+                        {
+                            name : 'package',
+                            label: 'Package',
+                            type: 'package',
+                            flag: '-p'
+                        },
+                        {
+                            name : 'created',
+                            label: 'Created Last Days',
+                            type: 'number',
+                            min: 0,
+                            max: 500,
+                            flag: '-c'
+                        },
+                        {
+                            name : 'modified',
+                            label: 'Modified Last Days',
+                            type: 'number',
+                            min: 0,
+                            max: 500,
+                            flag: '-m'
+                        },
+                        {
+                            name : 'released',
+                            label: 'Released Only',
+                            type: 'checkbox',
+                            flag: '-r'
+                        }                        
+                    ]        
+                }            
+            ]
         }
     ];
