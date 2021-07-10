@@ -30,6 +30,32 @@ if (fse.existsSync(personalCommandFile)) {
 }
 
 let commands = exports.commands = require(commandFile);
+
+commands.groups.push({
+    name : 'builtin',
+    label: 'Built In',
+    commands : [
+        {
+            name: 'decode',
+            label: 'Decode Command',
+            icon: 'open',
+            instructions: 'Enter the command below and this will be decoded.',
+            executelabel: 'Decode Command',
+            overview : 'TODO',
+            params : [
+                {
+                    name : 'command',
+                    label: 'Command',
+                    type: 'text',
+                    flag: ''
+                }
+            ]        
+        }
+    ]
+});
+
+
+
 let commandsByName=exports.commandsByName=new Map();
 for (let group of commands.groups) {
     for (let command of group.commands) {

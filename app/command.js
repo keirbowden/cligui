@@ -10,6 +10,7 @@ const currentWindow = remote.getCurrentWindow();
 const logging = require('./shared/logging.js');
 
 const fixPath = require('fix-path'); 
+const { copy } = require('fs-extra');
 fixPath();
 
 ui.addSpinner('spinner');    
@@ -20,6 +21,7 @@ let orgs;
 let config;
 let username;
 let devhubusername;
+let paramsByFlag;
 
 let executableEle=document.querySelector('#command');
 let executeButton=document.querySelector('#execute-button');
@@ -58,28 +60,50 @@ ipcRenderer.on('params', (event, params) => {
     setDirectory(dir);
     
     command=params.command;
+    setupCommand();
+});        
+
+const setupCommand = (() => {
     ui.setupHeader(command, mainProcess);
 
     const instContainer=document.getElementById('instructions');
     instContainer.innerHTML=(command.instructions?command.instructions:'<i>No instructions provided</i>');
     orgs=mainProcess.getOrgs();
+    const paramsEle=document.getElementById('params');
+    paramsEle.innerHTML='';
     paramUtils.addParams('params', command, orgs);
     paramUtils.addHandlers(command, updateCommand, config, mainProcess, currentWindow);
 
     executeButton.innerHTML=command.executelabel;
+    let underlyingCommandEle=document.querySelector('#underlying-command');
+    if (command.name!='decode') {
+        underlyingCommandEle.classList.remove('slds-hide');
+    }
     updateCommand();
-});        
+});
 
 const updateCommand = () => {
-    let executable=command.command + ' ' + command.subcommand + getParams();
-    executableEle.innerHTML=(executable);
+    if (command.name!='decode') {
+        let executable=command.command + ' ' + command.subcommand + getParams();
+        executableEle.innerHTML=(executable);
+    }
 }
 
 const getParams = () => {
     let disable=false;
     let paramStr='';
+    let populateMap=false;
+    if (!paramsByFlag) {
+        paramsByFlag=new Map();
+        paramsByLongFlag=new Map();
+        populateMap=true;
+    }
 
     for (let param of command.params) {
+        if (populateMap) {
+            paramsByFlag.set(param.flag, param);
+            paramsByLongFlag.set(param.longFlag, param);
+        }
         let val;
         let separator=(param.separator?param.separator:' ');
         switch (param.type) {
@@ -179,8 +203,10 @@ const getParams = () => {
                     if (param.type=='package') {
                         command.package=param.values[selectedIndex];
                     }
-                    if (!param.internal) {
-                        paramStr+=' ' + param.flag + separator + param.values[selectedIndex];
+                    if (param.values[selectedIndex]!='Custom') {
+                        if (!param.internal) {
+                            paramStr+=' ' + param.flag + separator + param.values[selectedIndex];
+                        }
                     }
                 }
                 else {
@@ -214,8 +240,76 @@ const getParams = () => {
     return paramStr;
 }
 
+
+const setParam = (param, value) => {
+    switch (param.type) {
+        case 'org':
+        case 'number':
+        case 'text':
+        case 'file':
+        case 'dir':
+        case 'select':
+        case 'logfile':
+        case 'package':
+        case 'packageversion':
+            param.input.value=stripQuotes(value);
+            break;
+        ;;
+        case 'checkbox':
+            let ele=document.querySelector('#' + param.name + '-cb')
+            ele.checked=true;
+            break;
+        ;;
+    }
+}
+
+const stripQuotes = (value) => {
+    let result=value;
+    if ( (result.charAt(0)=='\'') || (result.charAt(0)=='"') ) {
+        result=result.substring(1);
+    }
+    if ( (result.charAt(result.length-1)=='\'') || (result.charAt(result.length-1)=='"') ) {
+        result=result.substring(0, result.length-1);
+    }
+
+    return result;
+}
+
 const executeCommand = () => {
-    sfdxUtils.executeSfdxWithLogging(command, getParams(), completed);
+    if (command.name!='decode') {
+        sfdxUtils.executeSfdxWithLogging(command, getParams(), completed);
+    }
+    else {
+        let paramStr=getParams().replace(/\\\ /g, " ").trim();
+        const commandSplit=paramStr.match(/('(\\'|[^'])*'|"(\\"|[^"])*"|\/(\\\/|[^\/])*\/|(\\ |[^ ])+|[\w-]+)/g);
+        const exeName=commandSplit[0];
+        const subCommand=commandSplit[1];
+        for (let group of mainProcess.commands.groups) {
+            for (let groupCommand of group.commands) {
+                if ( (groupCommand.command==exeName) && 
+                     (groupCommand.subcommand==subCommand) ) {
+                    command=groupCommand;
+                    paramsByFlag=null;
+                    setupCommand();
+                    let idx=2;
+                    while (idx<commandSplit.length) {
+                        let flag=commandSplit[idx++];
+                        let value='';
+                        if (idx<commandSplit.length) {
+                            if ('-'!=commandSplit[idx].charAt(0)) {
+                                value=commandSplit[idx++];
+                            }
+                        }
+                        let param=paramsByFlag.get(flag) || paramsByLongFlag.get(flag);
+                        if (param) {
+                            setParam(param, value);
+                        }
+                        updateCommand();
+                    }
+                }
+            }
+        }
+    }
 };
 
 const completed = (success, result) => {

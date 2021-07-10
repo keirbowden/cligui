@@ -7,12 +7,8 @@ const fse=require('fs-extra');
 const fixPath = require('fix-path'); 
 fixPath();
 
-const currentWindow = remote.getCurrentWindow();
 
-ui.setupFooter('footer', mainProcess.getConfig());
-
-let count=0;
-for (let group of mainProcess.commands.groups) {
+const addGroupMarkup=((group, count)=>{
     let classes=['slds-tabs_default__item'];
     if (0===count) {
         classes.push('slds-is-active');
@@ -74,9 +70,17 @@ for (let group of mainProcess.commands.groups) {
         
         gridEle.appendChild(colEle);
     }
+});
+
+const currentWindow = remote.getCurrentWindow();
+
+ui.setupFooter('footer', mainProcess.getConfig());
+
+let count=0;
+for (let group of mainProcess.commands.groups) {
+    addGroupMarkup(group, count);
     count++;
 }
-
 
 for (let group of mainProcess.commands.groups) {
     group.link=document.querySelector('#tab-' + group.name + '-link');
@@ -164,4 +168,3 @@ ipcRenderer.on('broadcast', (event, message) => {
 ipcRenderer.on('config', (event) => {
     ui.setupFooter('footer', mainProcess.getConfig());
 });
-

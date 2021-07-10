@@ -182,8 +182,15 @@ const pollCommandStatus = (command, result, completeCB) => {
 
 }
 const logLogFileResult = (result) => {
+    let log;
+    if (Array.isArray(result)) {
+        log=result[0].log;
+    }
+    else {
+        log=result.log;
+    }
     logging.log('------------- Log File Start -------------');
-    logging.log(result.log);
+    logging.log(log);
     logging.log('------------- Log File End -------------');
 }
 

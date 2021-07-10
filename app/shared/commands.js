@@ -28,28 +28,39 @@ const groups = exports.groups =
                             name : 'alias',
                             label: 'Alias',
                             type: 'text',
-                            flag: '-a'
+                            flag: '-a',
+                            longFlag: '--setalias'
                         },
                         {
                             name: 'instance',
                             label: 'Instance URL',
                             type: 'select',
-                            values: ['https://login.salesforce.com', 'https://test.salesforce.com'],
-                            flag: '-r'
+                            values: ['https://login.salesforce.com', 'https://test.salesforce.com', 'Custom'],
+                            flag: '-r',
+                            longFlag: '--instanceurl'
+                        },
+                        {
+                            name : 'customLogin',
+                            label: 'Custom Login URL',
+                            type: 'text',
+                            flag: '-r',
+                            longFlag: '--instanceurl'
                         },
                         {
                             name: 'defaultuser',
                             label: 'Set as default user?',
                             type: 'checkbox',
                             default: false,
-                            flag: '-s'
+                            flag: '-s',
+                            longFlag: '--setdefaultusername'
                         },
                         {
                             name: 'defaultdevhubuser',
                             label: 'Set as default dev hub user?',
                             type: 'checkbox',
                             default: false,
-                            flag: '-d'
+                            flag: '-d',
+                            longFlag: '--setdefaultdevhubusername'
                         }
                     ]
                 },
@@ -79,7 +90,8 @@ const groups = exports.groups =
                             label: 'Choose Org',
                             type: 'org',
                             variant: 'all',
-                            flag: '-u'
+                            flag: '-u',
+                            longFlag: '--targetusername'
                         }
                     ]        
                 },
@@ -118,7 +130,8 @@ const groups = exports.groups =
                             label: 'Global ?',
                             type: 'checkbox',
                             default: 'false',
-                            flag: '-g'
+                            flag: '-g',
+                            longFlag: '--global'
                         }
                     ]        
                 },
@@ -157,7 +170,8 @@ const groups = exports.groups =
                             label: 'Global ?',
                             type: 'checkbox',
                             default: 'false',
-                            flag: '-g'
+                            flag: '-g',
+                            longFlag: '--global'
                         }
                     ]
                 },
@@ -186,7 +200,8 @@ const groups = exports.groups =
                             label: 'Choose Org',
                             type: 'org',
                             variant: 'all',
-                            flag: '-u'
+                            flag: '-u',
+                            longFlag: '--targetusername'
                         }
                     ]        
                 },
@@ -223,20 +238,23 @@ const groups = exports.groups =
                             type: 'org',
                             default: true,
                             variant: 'hub',
-                            flag: '-v'
+                            flag: '-v',
+                            longFlag: '--targetdevhubusername'
                         },
                         {
                             name: 'definition',
                             label: 'Definition File',
                             type: 'file',
                             default: false,
-                            flag: '-f'
+                            flag: '-f',
+                            longFlag: '--definitionfile'
                         },
                         {
                             name : 'alias',
                             label: 'Alias',
                             type: 'text',
-                            flag: '-a'
+                            flag: '-a',
+                            longFlag: '--setalias'
                         },
                         {
                             name: 'duration',
@@ -248,14 +266,16 @@ const groups = exports.groups =
                             maxlength: 2,
                             min: 1,
                             max:30,
-                            flag: '-d'
+                            flag: '-d',
+                            longFlag: '--duration'
                         },
                         {
                             name: 'defaultuser',
                             label: 'Set as default user?',
                             type: 'checkbox',
                             default: false,
-                            flag: '-s'
+                            flag: '-s',
+                            longFlag: '--setdefaultusername'
                         }
                     ]        
                 },
@@ -285,7 +305,8 @@ const groups = exports.groups =
                             label: 'Scratch Org',
                             type: 'org',
                             variant: 'scratch',
-                            flag: '-u'
+                            flag: '-u',
+                            longFlag: '--targetusername'
                         }
                     ]        
                 },
@@ -322,7 +343,8 @@ const groups = exports.groups =
                             type: 'org',
                             default: false,
                             variant: 'all',
-                            flag: '-u'
+                            flag: '-u',
+                            longFlag: '--targetusername'
                         }
                     ]        
                 },
@@ -352,13 +374,15 @@ const groups = exports.groups =
                             type: 'org',
                             default: false,
                             variant: 'all',
-                            flag: '-u'
+                            flag: '-u',
+                            longFlag: '--targetusername'
                         },
                         {
                             name : 'logfile',
                             label: 'Logfile',
                             type: 'logfile',
-                            flag: '-i'
+                            flag: '-i',
+                            longFlag: '--logid'
                         }
                     ]        
                 }
@@ -484,45 +508,52 @@ const groups = exports.groups =
                             type: 'org',
                             default: true,
                             variant: 'hub',
-                            flag: '-v'
+                            flag: '-v',
+                            longFlag: '--targetdevhubusername'
                         },
                         {
                             name : 'package',
                             label: 'Package',
                             type: 'package',
-                            flag: '-p'
+                            flag: '-p',
+                            longFlag: '--package'
                         },
                         {
                             name : 'key',
                             label: 'Key',
                             type: 'text',
                             flag: '-k',
+                            longFlag: '--installationkey',
                             excludes: 'bypasskey'
                         },
                         {
                             name : 'coverage',
                             label: 'Run Tests',
                             type: 'checkbox',
-                            flag: '-c'
+                            flag: '-c',
+                            longFlag: '--codecoverage'
                         },
                         {
                             name : 'description',
                             label: 'Version Description',
                             type: 'text',
                             quote: true,
-                            flag: '-e'
+                            flag: '-e',
+                            longFlag: '--versiondescription'
                         },
                         {
                             name : 'definition',
                             label: 'Definition File',
                             type: 'file',
-                            flag: '-f'
+                            flag: '-f',
+                            longFlag: '--definitionfile'
                         },
                         {
                             name : 'bypasskey',
                             label: 'Bypass Key',
                             type: 'checkbox',
                             flag: '-x',
+                            longFlag: '--installationkeybypass',
                             excludes: 'key'
                         },
                         {
@@ -531,7 +562,8 @@ const groups = exports.groups =
                             type: 'number', 
                             min: 0,
                             max: 60,
-                            flag: '-w'
+                            flag: '-w',
+                            longFlag: '--wait'
                         }
                     ]        
                 },
@@ -561,20 +593,23 @@ const groups = exports.groups =
                             type: 'org',
                             default: true,
                             variant: 'hub',
-                            flag: '-v'
+                            flag: '-v',
+                            longFlag: '--targetdevhubusername'
                         },
                         {
                             name : 'package',
                             label: 'Package',
                             type: 'package',
                             flag: '-p',
+                            longFlag: '--package',
                             internal: true
                         },
                         {
                             name : 'version',
                             label: 'Version',
                             type: 'packageversion',
-                            flag: '-p'
+                            flag: '-p',
+                            longFlag: '--package'
                         }
                     ]        
                 },
@@ -603,33 +638,38 @@ const groups = exports.groups =
                             type: 'org',
                             default: true,
                             variant: 'hub',
-                            flag: '-v'
+                            flag: '-v',
+                            longFlag: '--targetdevhubusername'
                         },
                         {
                             name : 'name',
                             label: 'Package Name',
                             type: 'text',
                             flag: '-n',
+                            longFlag: '--name'
                         },
                         {
                             name : 'description',
                             label: 'Description',
                             type: 'text',
-                            flag: '-d'
+                            flag: '-d',
+                            longFlag: '--description'
                         },
                         {
                             name : 'type',
                             label: 'Package Type',
                             type: 'select',
                             values: ['Managed','Unlocked'],
-                            flag: '-t'
+                            flag: '-t',
+                            longFlag: '--packagetype'
                         },
                         {
                             name: 'path',
                             label: 'Path',
                             type: 'dir',
                             relative: true,
-                            flag: '-r'
+                            flag: '-r',
+                            longFlag: '--path'
                         },
                         {
                             name : 'orgdependent',
@@ -665,7 +705,8 @@ const groups = exports.groups =
                             type: 'org',
                             default: true,
                             variant: 'hub',
-                            flag: '-v'
+                            flag: '-v',
+                            longFlag: '--targetdevhubusername'
                         }
                     ]        
                 },
@@ -695,13 +736,15 @@ const groups = exports.groups =
                             type: 'org',
                             default: true,
                             variant: 'hub',
-                            flag: '-v'
+                            flag: '-v',
+                            longFlag: '--targetdevhubusername'
                         },
                         {
                             name : 'package',
                             label: 'Package',
                             type: 'package',
-                            flag: '-p'
+                            flag: '-p',
+                            longFlag: '--packages'
                         },
                         {
                             name : 'created',
@@ -709,7 +752,8 @@ const groups = exports.groups =
                             type: 'number',
                             min: 0,
                             max: 500,
-                            flag: '-c'
+                            flag: '-c',
+                            longFlag: '--createdlastdays'
                         },
                         {
                             name : 'modified',
@@ -717,13 +761,15 @@ const groups = exports.groups =
                             type: 'number',
                             min: 0,
                             max: 500,
-                            flag: '-m'
+                            flag: '-m',
+                            longFlag: '--modifiedlastdays'
                         },
                         {
                             name : 'released',
                             label: 'Released Only',
                             type: 'checkbox',
-                            flag: '-r'
+                            flag: '-r',
+                            longFlag: '--released'
                         }                        
                     ]        
                 }            
