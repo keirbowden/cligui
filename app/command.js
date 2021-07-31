@@ -11,6 +11,8 @@ const logging = require('./shared/logging.js');
 
 const fixPath = require('fix-path'); 
 const { copy } = require('fs-extra');
+const { parseArgsStringToArgv } = require('string-argv');
+
 fixPath();
 
 ui.addSpinner('spinner');    
@@ -22,6 +24,8 @@ let config;
 let username;
 let devhubusername;
 let paramsByFlag;
+let favourite=false;
+let favouriteLabel;
 
 let executableEle=document.querySelector('#command');
 let executeButton=document.querySelector('#execute-button');
@@ -55,12 +59,75 @@ logButton.addEventListener('click', () => {
     logging.toggleModal();
 });
 
+const favSaveButton = document.querySelector('#fav-save-button');
+const favNameEle = document.querySelector('#fav-name');
+favSaveButton.addEventListener('click', () => {
+    let faves=mainProcess.getFaves();
+    const favName=favNameEle.value;
+    let error='';
+    if (favName) {
+        for (let idx=0; idx<faves.length; idx++) {
+            let fave=faves[idx];
+            if (fave.label==favName) {
+                error='Favourite named ' + favName + ' already exists';
+            }
+        }    
+    }
+    else {
+        error='Please provide a name for your favourite';
+    }
+
+    if (''==error) {
+        let commandStr=executableEle.innerHTML;
+        console.log('Inner HTML = ' + commandStr);
+        commandStr=commandStr.replace(/\\/g, '');
+
+        faves.push({label: favName, command: commandStr});
+        mainProcess.saveFaves(faves);
+        favSaveEle.classList.add('slds-hide');
+        favRemoveEle.classList.remove('slds-hide');
+    }
+    else {
+        alert(error);
+    }
+});
+
+
+const favRemoveButton = document.querySelector('#fav-remove-button');
+favRemoveButton.addEventListener('click', () => {
+    let faves=mainProcess.getFaves();
+    let newFaves=[];
+    for (let idx=0; idx<faves.length; idx++) {
+        let fave=faves[idx];
+        if (fave.label!=favouriteLabel) {
+            newFaves.push(fave);
+        }
+    }    
+    mainProcess.saveFaves(newFaves);
+    favSaveEle.classList.remove('slds-hide');
+    favRemoveEle.classList.add('slds-hide');
+});
+
+const favSaveEle=document.querySelector('#fav-save');
+const favRemoveEle=document.querySelector('#fav-remove');
 ipcRenderer.on('params', (event, params) => {
     dir=params.dir;
     setDirectory(dir);
     
     command=params.command;
-    setupCommand();
+    if (command=='favourite') {
+        favourite=true;
+        favouriteLabel=params.favourite.label;
+        decodeCommand(params.fullCommand);
+        favSaveEle.classList.add('slds-hide');
+        favRemoveEle.classList.remove('slds-hide');
+    }
+    else {
+        favourite=false;
+        setupCommand();
+        favSaveEle.classList.remove('slds-hide');
+        favRemoveEle.classList.add('slds-hide');
+    }
 });        
 
 const setupCommand = (() => {
@@ -79,7 +146,7 @@ const setupCommand = (() => {
     if (command.name!='decode') {
         underlyingCommandEle.classList.remove('slds-hide');
     }
-    updateCommand();
+    updateCommand()
 });
 
 const updateCommand = () => {
@@ -280,37 +347,61 @@ const executeCommand = () => {
         sfdxUtils.executeSfdxWithLogging(command, getParams(), completed);
     }
     else {
-        let paramStr=getParams().replace(/\\\ /g, " ").trim();
-        const commandSplit=paramStr.match(/('(\\'|[^'])*'|"(\\"|[^"])*"|\/(\\\/|[^\/])*\/|(\\ |[^ ])+|[\w-]+)/g);
-        const exeName=commandSplit[0];
-        const subCommand=commandSplit[1];
-        for (let group of mainProcess.commands.groups) {
-            for (let groupCommand of group.commands) {
-                if ( (groupCommand.command==exeName) && 
-                     (groupCommand.subcommand==subCommand) ) {
-                    command=groupCommand;
-                    paramsByFlag=null;
-                    setupCommand();
-                    let idx=2;
-                    while (idx<commandSplit.length) {
-                        let flag=commandSplit[idx++];
-                        let value='';
-                        if (idx<commandSplit.length) {
-                            if ('-'!=commandSplit[idx].charAt(0)) {
-                                value=commandSplit[idx++];
-                            }
+        decodeCommand(getParams());
+    }
+}
+
+const decodeCommand = (params) => {
+    let paramStr=params.replace(/\\\ /g, " ").trim();
+    const commandSplit=parseArgsStringToArgv(paramStr);
+
+   // const commandSplit=paramStr.match(/('(\\'|[^'])*'|"(\\"|[^"])*"|\/(\\\/|[^\/])*\/|(\\ |[^ ])+|[\w-]+)/g);
+    const exeName=commandSplit[0];
+    const subCommand=commandSplit[1];
+    for (let group of mainProcess.commands.groups) {
+        for (let groupCommand of group.commands) {
+            if ( (groupCommand.command==exeName) && 
+                    (groupCommand.subcommand==subCommand) ) {
+                command=groupCommand;
+                paramsByFlag=null;
+                setupCommand();
+                let packageParam=null;
+                let packageParamValue=null;
+                let idx=2;
+                while (idx<commandSplit.length) {
+                    let flag=commandSplit[idx++];
+                    let value='';
+                    if (idx<commandSplit.length) {
+                        if ('-'!=commandSplit[idx].charAt(0)) {
+                            value=commandSplit[idx++];
                         }
-                        let param=paramsByFlag.get(flag) || paramsByLongFlag.get(flag);
-                        if (param) {
-                            setParam(param, value);
-                        }
-                        updateCommand();
                     }
+                    let param=paramsByFlag.get(flag) || paramsByLongFlag.get(flag);
+                    if (param) {
+                        setParam(param, value);
+                        if (param.type=='package') {
+                            packageParam=param;
+                            packageParamValue=value;
+                        }
+                    }
+                }
+                if (packageParam) {
+                    paramUtils.getPackageOptions(packageParam, command.username, config,
+                                                () => {
+                                                    console.log('Setting value of ' + JSON.stringify(packageParam) + ' to ' + packageParamValue);
+                                                    setParam(packageParam, packageParamValue);
+                                                    getParams();
+                                                    updateCommand();
+                                                });
+                }
+                else {
+                    getParams();
+                    updateCommand();
                 }
             }
         }
     }
-};
+}
 
 const completed = (success, result) => {
     if (success) {

@@ -41,11 +41,27 @@
         <div class="slds-page-header__col-actions">
             <div class="slds-page-header__controls">
                 <div class="slds-page-header__control">
-                  <div id="custom-commands-button-container"></div>
                   <button id="orgs-button" class="slds-button slds-button_neutral">Refresh Orgs</button>
                   <button id="dir-button" class="slds-button slds-button_neutral">Change Directory</button>
                   <button id="help-button" class="slds-button slds-button_neutral">Help</button>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="slds-page-header__row">
+        <div class="slds-grid slds-grid_align-end header-favourites">
+            <div class="slds-col slds-size_4-of-12">
+                &nbsp;
+            </div>
+            <div class="slds-col slds-size_6-of-12">
+                <input id="fav-input" list="fav-list" class="slds-input"></input>
+                <datalist id="fav-list"></datalist>
+            </div>
+            <div class="slds-col slds-size_1-of-12 right-aligned">
+                <button id="open-fav-button" class="slds-button slds-button_neutral" disabled>Open</button>
+            </div>
+            <div class="slds-col slds-size_1-of-12 right-aligned">
+                <button id="run-fav-button" class="slds-button slds-button_neutral" disabled>Run</button>
             </div>
         </div>
     </div>
@@ -58,6 +74,7 @@
   </div>
   <div class="slds-is-fixed footer" id="footer">
   </div>
+  <div id="logging"></div>
 </body>
 <script>
   require('./home');

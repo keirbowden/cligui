@@ -128,12 +128,14 @@ const addPackageParam = (param) => {
     return formEles.formEle;
  }
  
- const getPackageOptions = (param, username, config, callback) => {
+ const getPackageOptions = exports.getPackageOptions = (param, username, config, callback) => {
     let spinEle=document.querySelector('#spinner');
     ui.executeWithSpinner(spinEle, () => {
         const result=sfdxUtils.runSfdxCommand('force:package:list', '-v ' + username);
         addPackageOptions(result, param, config);
-        callback();
+        if (callback) {
+            callback();
+        }
     })
 }
 

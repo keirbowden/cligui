@@ -77,6 +77,7 @@ const getConfig = exports.getConfig = () => {
 
 getConfig();
 
+
 const getUsername = exports.getUsername = () => {
     return username;
 }
@@ -182,13 +183,13 @@ const createWindow = exports.createWindow = (page, height, width, x, y, params) 
     windows.add(newWindow);
 };
 
-let orgs=null;
-
 const broadcastMessage = exports.broadcastMessage = (msg) => {
     for (window of windows) {
         window.webContents.send('broadcast', msg);
     }
 }
+
+let orgs=null;
 
 const setOrgs = exports.setOrgs = (inOrgs, refresh) => {
     orgs=inOrgs;
@@ -197,6 +198,28 @@ const setOrgs = exports.setOrgs = (inOrgs, refresh) => {
 
 const getOrgs = exports.getOrgs = (force) => {
     return orgs;
+}
+
+let faveFilename=path.join(getDataDir(), 'faves.json');
+let faves = [];
+if (fse.existsSync(faveFilename)) {
+    faves = JSON.parse(fse.readFileSync(faveFilename));
+}
+else {
+    fse.writeFileSync(faveFilename, JSON.stringify(faves));
+}
+
+const getFaves = exports.getFaves = () => {
+    console.log('Returning ' + faves);
+    return faves;
+}
+  
+const saveFaves = exports.saveFaves = (newFaves) => {
+    fse.writeFileSync(faveFilename, JSON.stringify(newFaves));
+    faves=newFaves;
+    for (window of windows) {
+        window.webContents.send('favourites');
+    }
 }
   
 const getFileFromUser  = exports.getFileFromUser = (targetWindow, defaultDir) => {

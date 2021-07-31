@@ -24,3 +24,11 @@
 .command-button {
     width:100%;
 }
+
+.header-favourites {
+    width:100%;
+}
+
+.right-aligned {
+    text-align: right;
+}

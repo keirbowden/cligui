@@ -4,8 +4,135 @@ const sfdxUtils = require('./shared/sfdxUtils.js');
 const ui = require('./shared/ui.js');
 const path=require('path');
 const fse=require('fs-extra');
+const logging = require('./shared/logging.js');
+const orgUtils = require('./shared/orgUtils.js');
+const { parseArgsStringToArgv } = require('string-argv');
 const fixPath = require('fix-path'); 
 fixPath();
+
+logging.addModal('logging');
+
+let faves;
+let faveMap;
+
+let faveInput=document.querySelector('#fav-input');
+
+const setupFaves = () => {
+    faveMap=new Map();
+    faves=mainProcess.getFaves();
+    let faveList=document.querySelector('#fav-list');
+    faveInput.value='';
+    faveList.innerHTML='';
+    for (let idx=0; idx<faves.length; idx++) {
+        let fave=faves[idx];
+        let option=document.createElement('option');
+        option.value=fave.label;
+        option.label=fave.label;
+        faveList.appendChild(option);
+        faveMap.set(fave.label, fave);
+    }
+};
+
+setupFaves();
+
+ipcRenderer.on('favourites', (event) => {
+    setupFaves();
+});
+
+let openFaveButton=document.querySelector('#open-fav-button');
+let runFaveButton=document.querySelector('#run-fav-button');
+let chosenFave;
+faveInput.addEventListener('change', () => {
+    chosenFave=faveMap.get(faveInput.value);
+    if (null!=chosenFave) {
+        openFaveButton.disabled=false;
+        runFaveButton.disabled=false;
+    }
+    else {
+        openFaveButton.disabled=true;
+        runFaveButton.disabled=true;
+    }
+});
+
+
+openFaveButton.addEventListener('click', ()=> {
+    const theDir=chosenFave.directory||process.cwd();
+    mainProcess.createWindow('command.html', 900, 1200, 10, 10, {command: 'favourite', fullCommand: chosenFave.command, favourite: chosenFave, dir: theDir});
+});
+
+let command;
+runFaveButton.addEventListener('click', ()=> {
+    const currDir=process.cwd();
+    //let commandStr=chosenFave.command.replace(/\\\ /g, " ").trim();
+    let commandStr=chosenFave.command;
+    if (confirm('This will execute\n' + commandStr + '\nAre you sure?')) {
+        const commandSplit=parseArgsStringToArgv(commandStr);
+        const exeName=commandSplit[0];
+        const subCommand=commandSplit[1];
+        for (let group of mainProcess.commands.groups) {
+            for (let groupCommand of group.commands) {
+                if ( (groupCommand.command==exeName) && 
+                        (groupCommand.subcommand==subCommand) ) {
+                    command=groupCommand;
+                }
+            }
+        }
+    
+        commandSplit.splice(0, 2);
+        let paramStr=commandSplit.join(' ');
+    
+        console.log('Command = ' + JSON.stringify(command));
+        console.log('paramStr = ' + JSON.stringify(paramStr));
+    
+        const theDir=chosenFave.directory||process.cwd();
+        if (currDir!=theDir) {
+            process.chdir(theDir);
+        }
+    
+        sfdxUtils.executeSfdxWithLogging(command, paramStr, completed);
+    
+        if (currDir!=theDir) {
+            process.chdir(currDir);
+        }
+    }
+});
+
+const completed = (success, result) => {
+    if (success) {
+        orgUtils.openOrgIfConfigured(command, result.result.username);
+        if (command.refreshOrgs) {
+            logging.log('Refreshing org list');
+            mainProcess.refreshOrgs();
+        }
+        
+        if (command.refreshConfig) {
+            logging.log('Refreshing config');
+            mainProcess.refreshConfig();
+        }
+
+        if ( ('user'==command.openFile) && 
+             (result.result!='No rule violations found.') ) {
+            const openFile=document.querySelector('#open-file-cb:checked');
+            if (null!=openFile) {
+                const val=openFile.value;
+                if (val=='open-file')
+                {
+                    for (let param of command.params)
+                    {
+                        if (param.name===command.openFileParam)
+                        {
+                            const filename=param.input.value;
+                            let openCmd=(process.platform === "win32"?'start':'open');
+                            if (process)
+                            child_process. execSync(openCmd + ' ' + filename);
+                        }
+                    }
+                }
+            }
+        }
+    
+    }
+}
 
 
 const addGroupMarkup=((group, count)=>{
@@ -136,7 +263,14 @@ dirButton.addEventListener('click', () => {
     }
 });
 
-const customCommandsButtonContainer=document.querySelector('#custom-commands-button-container');
+ const addOrgOption = (datalist, org, scratch) => {
+     option=document.createElement('option');
+     option.value=orgUtils.getOrgValue(org, scratch);
+     option.label=orgUtils.getOrgValue(org, scratch);
+     datalist.appendChild(option);
+ }
+ 
+
 let guiDir=mainProcess.getGUIDir();
 /*let personalCommandFile=path.join(guiDir, 'commands.js');
 if (!fse.existsSync(personalCommandFile)) {
@@ -168,3 +302,4 @@ ipcRenderer.on('broadcast', (event, message) => {
 ipcRenderer.on('config', (event) => {
     ui.setupFooter('footer', mainProcess.getConfig());
 });
+

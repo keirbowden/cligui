@@ -7,4 +7,4 @@ const fse=require('fs-extra');
 let orgs;
 
 sfdxUtils.loadOrgs(mainProcess, null, true);
-//mainProcess.closeSetup();
+
