@@ -79,11 +79,12 @@ favSaveButton.addEventListener('click', () => {
 
     if (''==error) {
         let commandStr=executableEle.innerHTML;
-        console.log('Inner HTML = ' + commandStr);
         commandStr=commandStr.replace(/\\/g, '');
 
         faves.push({label: favName, command: commandStr});
         mainProcess.saveFaves(faves);
+        favourite=true;
+        favouriteLabel=favName;
         favSaveEle.classList.add('slds-hide');
         favRemoveEle.classList.remove('slds-hide');
     }
@@ -388,7 +389,6 @@ const decodeCommand = (params) => {
                 if (packageParam) {
                     paramUtils.getPackageOptions(packageParam, command.username, config,
                                                 () => {
-                                                    console.log('Setting value of ' + JSON.stringify(packageParam) + ' to ' + packageParamValue);
                                                     setParam(packageParam, packageParamValue);
                                                     getParams();
                                                     updateCommand();

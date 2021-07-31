@@ -51,10 +51,8 @@ const runSfdx = exports.runSfdx = (params) => {
         result=JSON.parse(resultJSON);
     }
     catch (exc) {
-        console.log('Caught exception ' + exc);
         let stdoutJSON=exc.stdout.toString();
         if ( (stdoutJSON) && (stdoutJSON.length>0) ) {
-            console.log('stdoutJSON = ' + stdoutJSON);
             let stdout=JSON.parse(stdoutJSON);
             if ( (stdout.status) && (stdout.status!==0) ) {
                 result=stdout;            

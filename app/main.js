@@ -210,7 +210,6 @@ else {
 }
 
 const getFaves = exports.getFaves = () => {
-    console.log('Returning ' + faves);
     return faves;
 }
   

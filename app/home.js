@@ -81,9 +81,6 @@ runFaveButton.addEventListener('click', ()=> {
         commandSplit.splice(0, 2);
         let paramStr=commandSplit.join(' ');
     
-        console.log('Command = ' + JSON.stringify(command));
-        console.log('paramStr = ' + JSON.stringify(paramStr));
-    
         const theDir=chosenFave.directory||process.cwd();
         if (currDir!=theDir) {
             process.chdir(theDir);
